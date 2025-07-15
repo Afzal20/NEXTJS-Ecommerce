@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import PasswordCheck from "@/components/CustomComponent/PasswordCheck"
+import ChangeThemeButton from "@/components/CustomComponent/ChangeThemeButton"
 
 import {
   NavigationMenu,
@@ -34,7 +35,7 @@ export default function Navbar() {
   const id = useId()
 
   return (
-    <header className="border-b px-4 md:px-6">
+    <header className="md:px-6">
       <div className="flex h-16 items-center justify-between gap-4">
         {/* Left side */}
         <div className="flex flex-1 items-center gap-2">
@@ -74,12 +75,14 @@ export default function Navbar() {
                         {link.label}
                       </NavigationMenuLink>
                     </NavigationMenuItem>
-                  ))}
-                  <NavigationMenuItem className="w-full" role="presentation" aria-hidden="true">
+                  ))}                  <NavigationMenuItem className="w-full" role="presentation" aria-hidden="true">
                     <div
                       role="separator"
                       aria-orientation="horizontal"
                       className="bg-border -mx-1 my-1 h-px"></div>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem className="w-full">
+                    <ChangeThemeButton/>
                   </NavigationMenuItem>
                   <NavigationMenuItem className="w-full">
                     <NavigationMenuLink href="#" className="py-1.5">
@@ -135,6 +138,8 @@ export default function Navbar() {
         </div>
         {/* Right side */}
         <div className="flex items-center gap-2 max-md:hidden">
+          {/* Theme toggle */}
+          <ChangeThemeButton/>
           {/* Sign in */}
           <SignIn/>
           <Button asChild size="sm" className="text-sm">
