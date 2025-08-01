@@ -26,9 +26,8 @@ import SignIn from "./CustomComponent/SignIn"
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
-  { href: "#", label: "Products" },
-  { href: "#", label: "Categories" },
-  { href: "#", label: "Deals" },
+  { href: "Products", label: "Products" },
+  { href: "Categories", label: "Categories" },
 ]
 
 export default function Navbar() {
@@ -75,21 +74,22 @@ export default function Navbar() {
                         {link.label}
                       </NavigationMenuLink>
                     </NavigationMenuItem>
-                  ))}                  <NavigationMenuItem className="w-full" role="presentation" aria-hidden="true">
+                  ))}                
+                  <NavigationMenuItem className="w-full" role="presentation" aria-hidden="true">
                     <div
                       role="separator"
                       aria-orientation="horizontal"
                       className="bg-border -mx-1 my-1 h-px"></div>
                   </NavigationMenuItem>
                   <NavigationMenuItem className="w-full">
-                    <ChangeThemeButton/>
+                    <ChangeThemeButton />
                   </NavigationMenuItem>
                   <NavigationMenuItem className="w-full">
-                    <NavigationMenuLink href="#" className="py-1.5">
-                      Sign In
-                    </NavigationMenuLink>
+                    {/* Signin Button */}
+                    <SignIn />
                   </NavigationMenuItem>
                   <NavigationMenuItem className="w-full">
+                    <NavigationMenuLink href="/cart" className="py-1.5">
                     <Button asChild size="sm" className="mt-0.5 w-full text-left text-sm">
                       <span className="flex items-baseline gap-2">
                         Cart
@@ -98,6 +98,7 @@ export default function Navbar() {
                         </span>
                       </span>
                     </Button>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
@@ -105,7 +106,7 @@ export default function Navbar() {
           </Popover>
           {/* Main nav */}
           <div className="flex flex-1 items-center gap-6 max-md:justify-between">
-            <a href="#" className="text-primary hover:text-primary/90">
+            <a href="/" className="text-primary hover:text-primary/90">
               <Logo />
             </a>
             {/* Navigation menu */}
@@ -139,11 +140,11 @@ export default function Navbar() {
         {/* Right side */}
         <div className="flex items-center gap-2 max-md:hidden">
           {/* Theme toggle */}
-          <ChangeThemeButton/>
+          <ChangeThemeButton />
           {/* Sign in */}
-          <SignIn/>
+          <SignIn />
           <Button asChild size="sm" className="text-sm">
-            <a href="#">
+            <a href="/cart">
               <span className="flex items-baseline gap-2">
                 Cart
                 <span className="text-primary-foreground/60 text-xs">2</span>

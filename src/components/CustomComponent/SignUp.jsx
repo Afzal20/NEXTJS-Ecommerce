@@ -24,7 +24,7 @@ export const SignUp = () => {
                     Sign up
                 </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="!bg-white dark:!bg-gray-900 border shadow-lg backdrop-blur-sm">
                 <div className="flex flex-col items-center gap-2">
                     <div
                         className="flex size-11 shrink-0 items-center justify-center rounded-full border"
