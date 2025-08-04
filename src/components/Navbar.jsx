@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import PasswordCheck from "@/components/CustomComponent/PasswordCheck"
-import ChangeThemeButton from "@/components/CustomComponent/ChangeThemeButton"
+import PasswordCheck from "@/components/PasswordCheck"
+import ChangeThemeButton from "@/components/ChangeThemeButton"
 
 import {
   NavigationMenu,
@@ -22,7 +22,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-import SignIn from "./CustomComponent/SignIn"
+import SignIn from "./SignIn"
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
@@ -35,7 +35,7 @@ export default function Navbar() {
 
   return (
     <header className="md:px-6">
-      <div className="flex h-16 items-center justify-between gap-4">
+      <div className="flex h-16 items-center justify-center gap-4">
         {/* Left side */}
         <div className="flex flex-1 items-center gap-2">
           {/* Mobile menu trigger */}

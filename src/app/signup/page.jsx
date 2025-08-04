@@ -4,7 +4,7 @@ import React, { useId } from 'react'
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import PasswordCheck from "@/components/CustomComponent/PasswordCheck"
+import PasswordCheck from "@/components/PasswordCheck"
 
 export default function SignUpPage() {
     const id = useId();

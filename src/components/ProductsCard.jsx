@@ -8,9 +8,9 @@ const ProductsCard = () => {
                     <img alt="ecommerce" className="object-cover object-center w-full h-full block" src="https://dummyimage.com/428x268" />
                 </a>
                 <div className="mt-4">
-                    <h3 className="text-gray-500 text-xs tracking-widest title-font mb-1">CATEGORY</h3>
-                    <h2 className="text-white title-font text-lg font-medium">The 400 Blows</h2>
-                    <p className="mt-1">$18.40</p>
+                    <h3 className="text-muted-foreground text-xs tracking-widest title-font mb-1">CATEGORY</h3>
+                    <h2 className="text-foreground title-font text-lg font-medium">The 400 Blows</h2>
+                    <p className="mt-1 text-primary font-semibold">$18.40</p>
                 </div>
             </div>
         </>

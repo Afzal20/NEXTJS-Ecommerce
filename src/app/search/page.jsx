@@ -3,6 +3,7 @@ import ProductsCard from '@/components/ProductsCard'
 
 const page = () => {
     const productArray = Array.from({ length: 10 }, (_, index) => index + 1);
+    
     return (
         <div className='flex flex-col items-center'>
             <h1 className='text-3xl font-bold text-center mt-10'>Search Results</h1>

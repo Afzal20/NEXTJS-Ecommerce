@@ -75,7 +75,7 @@ const ProductItem = ({ item, index, onChange, onDelete }) => {
                         <a href="#!">{title}</a>
                     </div>
                     <div>
-                        <h3 className="text-xl font-bold text-primary">Rs. {price}</h3>
+                        <h3 className="text-xl font-bold text-primary">{price}$ </h3>
                         <QtyField name={`ezy__epcart2-qty-${index}`} value={qty} onChange={(e) => onChange(e, index)} />
                     </div>
                 </div>
@@ -169,26 +169,30 @@ export default function CartPage() {
 
                                     <div className="flex justify-between items-center">
                                         <span>Sub total</span>
-                                        <span className="font-bold">Rs. {subtotal.toLocaleString()}</span>
+                                        <span className="font-bold">$.{subtotal.toLocaleString()}</span>
                                     </div>
                                     <hr className="my-4 border-border" />
                                     <div className="flex justify-between items-center">
                                         <span>Shipping Fee</span>
-                                        <span className="font-bold">Rs. {shippingFee}</span>
+                                        <span className="font-bold">$. {shippingFee}</span>
                                     </div>
                                     <hr className="my-4 border-border" />
                                     <div className="flex justify-between items-center">
                                         <span>Tax</span>
-                                        <span className="font-bold">Rs. {tax.toLocaleString()}</span>
+                                        <span className="font-bold">$. {tax.toLocaleString()}</span>
                                     </div>
                                     <hr className="my-4 border-border" />
                                     <div className="flex justify-between items-center">
                                         <span className="text-lg font-bold">Total</span>
-                                        <span className="text-lg font-bold">Rs. {total.toLocaleString()}</span>
+                                        <span className="text-lg font-bold">$.{total.toLocaleString()}</span>
                                     </div>
                                 </div>
                                 <div className="">
-                                    <button className="w-full bg-primary rounded-md text-primary-foreground hover:bg-primary/90 transition-colors py-3 font-medium">
+                                    <button className="w-full bg-primary rounded-md text-primary-foreground hover:bg-primary/90 transition-colors py-3 font-medium" 
+                                        onClick={() => 
+                                            window.location.href = '/checkout'
+                                        }
+                                    >
                                         CHECKOUT ({totalItems})
                                     </button>
                                 </div>

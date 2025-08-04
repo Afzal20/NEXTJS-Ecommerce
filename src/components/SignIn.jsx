@@ -22,13 +22,13 @@ const SignIn = () => {
             <DialogTrigger asChild>
                 <Button variant="outline">Sign in</Button>
             </DialogTrigger>
-            <DialogContent className="!bg-white dark:!bg-gray-900 border shadow-lg backdrop-blur-sm">
+            <DialogContent className="bg-card text-card-foreground border border-border shadow-lg backdrop-blur-sm">
                 <div className="flex flex-col items-center gap-2">
                     <div
-                        className="flex size-11 shrink-0 items-center justify-center rounded-full border"
+                        className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border"
                         aria-hidden="true">
                         <svg
-                            className="stroke-zinc-800 dark:stroke-zinc-100"
+                            className="stroke-foreground"
                             xmlns="http://www.w3.org/2000/svg"
                             width="20"
                             height="20"
