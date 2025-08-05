@@ -26,8 +26,8 @@ import SignIn from "./SignIn"
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
-  { href: "Products", label: "Products" },
-  { href: "Categories", label: "Categories" },
+  { href: "/Products", label: "Products" },
+  { href: "/Categories", label: "Categories" },
 ]
 
 export default function Navbar() {
