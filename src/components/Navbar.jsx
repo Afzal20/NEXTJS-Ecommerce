@@ -1,5 +1,8 @@
+"use client"
+
 import { useId } from "react"
 import { SearchIcon } from "lucide-react"
+import { useInstantNavigation } from "@/hooks/usePageTransition"
 
 import Logo from "@/components/logo"
 import { Button } from "@/components/ui/button"
@@ -32,6 +35,7 @@ const navigationLinks = [
 
 export default function Navbar() {
   const id = useId()
+  const { navigateTo } = useInstantNavigation()
 
   return (
     <header className="md:px-6">
@@ -70,7 +74,14 @@ export default function Navbar() {
                 <NavigationMenuList className="flex-col items-start gap-0 md:gap-2">
                   {navigationLinks.map((link, index) => (
                     <NavigationMenuItem key={index} className="w-full">
-                      <NavigationMenuLink href={link.href} className="py-1.5">
+                      <NavigationMenuLink 
+                        href="#" 
+                        onClick={(e) => {
+                          e.preventDefault()
+                          navigateTo(link.href)
+                        }}
+                        className="py-1.5 cursor-pointer"
+                      >
                         {link.label}
                       </NavigationMenuLink>
                     </NavigationMenuItem>
@@ -89,7 +100,14 @@ export default function Navbar() {
                     <SignIn />
                   </NavigationMenuItem>
                   <NavigationMenuItem className="w-full">
-                    <NavigationMenuLink href="/cart" className="py-1.5">
+                    <NavigationMenuLink 
+                      href="#" 
+                      onClick={(e) => {
+                        e.preventDefault()
+                        navigateTo('/cart')
+                      }}
+                      className="py-1.5 cursor-pointer"
+                    >
                     <Button asChild size="sm" className="mt-0.5 w-full text-left text-sm">
                       <span className="flex items-baseline gap-2">
                         Cart
@@ -106,7 +124,14 @@ export default function Navbar() {
           </Popover>
           {/* Main nav */}
           <div className="flex flex-1 items-center gap-6 max-md:justify-between">
-            <a href="/" className="text-primary hover:text-primary/90">
+            <a 
+              href="#" 
+              onClick={(e) => {
+                e.preventDefault()
+                navigateTo('/')
+              }}
+              className="text-primary hover:text-primary/90 cursor-pointer"
+            >
               <Logo />
             </a>
             {/* Navigation menu */}
@@ -115,8 +140,12 @@ export default function Navbar() {
                 {navigationLinks.map((link, index) => (
                   <NavigationMenuItem key={index}>
                     <NavigationMenuLink
-                      href={link.href}
-                      className="text-muted-foreground hover:text-primary py-1.5 font-medium">
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        navigateTo(link.href)
+                      }}
+                      className="text-muted-foreground hover:text-primary py-1.5 font-medium cursor-pointer">
                       {link.label}
                     </NavigationMenuLink>
                   </NavigationMenuItem>
@@ -144,7 +173,14 @@ export default function Navbar() {
           {/* Sign in */}
           <SignIn />
           <Button asChild size="sm" className="text-sm">
-            <a href="/cart">
+            <a 
+              href="#" 
+              onClick={(e) => {
+                e.preventDefault()
+                navigateTo('/cart')
+              }}
+              className="cursor-pointer"
+            >
               <span className="flex items-baseline gap-2">
                 Cart
                 <span className="text-primary-foreground/60 text-xs">2</span>

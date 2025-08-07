@@ -1,13 +1,30 @@
+"use client"
+
 import HeaderSlider from "@/components/HeaderSlider";
 import Image from "next/image";
 import ProductsCard from "@/components/ProductsCard";
+import InstantPageWrapper from "@/components/InstantPageWrapper";
+import HeroSectionSkeleton from "@/components/HeroSectionSkeleton";
+import ProductGridSkeleton from "@/components/ProductGridSkeleton";
 
 
 export default function Home() {
   const productArray = Array.from({ length: 10 }, (_, index) => index + 1);
-  return (
+  
+  const HomePageSkeleton = () => (
     <div className="ml-[50px] mr-[50px]">
-      <HeaderSlider />
+      <HeroSectionSkeleton />
+      <ProductGridSkeleton count={10} />
+    </div>
+  );
+
+  return (
+    <InstantPageWrapper 
+      loadingSkeleton={<HomePageSkeleton />}
+      loadingDelay={200}
+    >
+      <div className="ml-[50px] mr-[50px]">
+        <HeaderSlider />
       {/* Categories */}
       <div className='flex flex-col items-center bg-background text-foreground rounded-lg mt-[20px] p-20'>
         <h1 className='text-3xl font-bold text-center'>Top Products Categories</h1>
@@ -81,6 +98,7 @@ export default function Home() {
           </div>
         </form> 
       </div>
-    </div>
+      </div>
+    </InstantPageWrapper>
   );
 }
