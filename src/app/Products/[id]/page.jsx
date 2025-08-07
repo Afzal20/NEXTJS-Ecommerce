@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { FaStar } from 'react-icons/fa';
 import { FaPlus } from "react-icons/fa6";
 import { FaMinus } from "react-icons/fa6";
@@ -9,6 +9,7 @@ import { GoArrowRight } from 'react-icons/go';
 import ProductsCard from '@/components/ProductsCard';
 import { assets } from "@/assets/assets";
 import Image from 'next/image';
+import ProductDetailSkeleton from '@/components/ProductDetailSkeleton';
 
 
 const products = [
@@ -252,4 +253,12 @@ const ProductDetailsCard = () => {
     );
 };
 
-export default ProductDetailsCard;
+const ProductDetailsPage = () => {
+    return (
+        <Suspense fallback={<ProductDetailSkeleton />}>
+            <ProductDetailsCard />
+        </Suspense>
+    );
+};
+
+export default ProductDetailsPage;

@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { Suspense } from 'react'
+import CategoriesPageSkeleton from '@/components/CategoriesPageSkeleton'
 
-const page = () => {
-
+const CategoriesContent = () => {
   return (
     <div className='flex flex-col items-center w-full h-auto bg-background text-foreground'>
       <h1 className='text-3xl font-bold text-center mt-10'>Categories</h1>
@@ -16,6 +16,14 @@ const page = () => {
         ))}
       </div>
     </div>
+  )
+}
+
+const page = () => {
+  return (
+    <Suspense fallback={<CategoriesPageSkeleton />}>
+      <CategoriesContent />
+    </Suspense>
   )
 }
 

@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import ProductsCard from '@/components/ProductsCard'
+import SearchPageSkeleton from '@/components/SearchPageSkeleton'
 
-const page = () => {
+const SearchContent = () => {
     const productArray = Array.from({ length: 10 }, (_, index) => index + 1);
     
     return (
@@ -18,6 +19,14 @@ const page = () => {
                 </div>
             </section>
         </div>
+    )
+}
+
+const page = () => {
+    return (
+        <Suspense fallback={<SearchPageSkeleton />}>
+            <SearchContent />
+        </Suspense>
     )
 }
 

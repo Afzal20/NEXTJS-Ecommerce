@@ -1,7 +1,8 @@
 "use client"; 
 
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, Suspense } from "react";
 import { Trash2 } from "lucide-react";
+import CartSkeleton from "@/components/CartSkeleton";
 
 
 const productList = [
@@ -94,7 +95,7 @@ const ProductItem = ({ item, index, onChange, onDelete }) => {
     );
 };
 
-export default function CartPage() {
+const CartContent = () => {
     const [products, setProducts] = useState([...productList]);
 
     const onChange = (e, index) => {
@@ -202,5 +203,13 @@ export default function CartPage() {
                 )}
             </div>
         </section>
+    );
+};
+
+export default function CartPage() {
+    return (
+        <Suspense fallback={<CartSkeleton />}>
+            <CartContent />
+        </Suspense>
     );
 }

@@ -1,8 +1,17 @@
-import React from 'react'
+import React, { Suspense } from 'react'
+import CheckoutPageSkeleton from '@/components/CheckoutPageSkeleton'
+
+const CheckoutContent = () => {
+  return (
+    <div>Checkout Page</div>
+  )
+}
 
 const page = () => {
   return (
-    <div>Checkout Page</div>
+    <Suspense fallback={<CheckoutPageSkeleton />}>
+      <CheckoutContent />
+    </Suspense>
   )
 }
 

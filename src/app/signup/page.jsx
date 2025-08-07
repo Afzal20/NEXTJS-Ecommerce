@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useId } from 'react'
+import React, { useId, Suspense } from 'react'
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import PasswordCheck from "@/components/PasswordCheck"
+import SignupPageSkeleton from "@/components/SignupPageSkeleton"
 
-export default function SignUpPage() {
+const SignUpContent = () => {
     const id = useId();
     
     return (
@@ -84,4 +85,12 @@ export default function SignUpPage() {
             </div>
         </div>
     );
+}
+
+export default function SignUpPage() {
+    return (
+        <Suspense fallback={<SignupPageSkeleton />}>
+            <SignUpContent />
+        </Suspense>
+    )
 }

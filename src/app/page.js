@@ -1,5 +1,6 @@
 "use client"
 
+import React, { Suspense } from "react";
 import HeaderSlider from "@/components/HeaderSlider";
 import Image from "next/image";
 import ProductsCard from "@/components/ProductsCard";
