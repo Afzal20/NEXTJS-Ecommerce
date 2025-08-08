@@ -1,21 +1,38 @@
-import React, { useId } from 'react'
-import { SignUp } from './SignUp'
+import React, { useEffect, useId, useState } from 'react'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog"
 
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Input } from '@/components/ui/input';
 
+import { useLogin } from '@/lib/api'
 
 const SignIn = () => {
     const id = useId();
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+
+    const handelSubmit = async(e) => {
+        e.preventDefault();
+        if (email === "" || password === ""){
+            return
+        }try{
+            await useLogin(email, password);
+            alert("Login successful!");
+            window.location.reload();
+        }catch(e) {
+
+            console.error("Login failed:", e);
+            alert("Login failed. Please check your credentials and try again.");
+        }
+    }
 
     return (
         <Dialog>
@@ -45,11 +62,17 @@ const SignIn = () => {
                     </DialogHeader>
                 </div>
 
-                <form className="space-y-5">
+                <form className="space-y-5" onSubmit={handelSubmit}>
                     <div className="space-y-4">
                         <div className="*:not-first:mt-2">
                             <Label htmlFor={`${id}-signin-email`}>Email</Label>
-                            <Input id={`${id}-signin-email`} placeholder="hi@yourcompany.com" type="email" required />
+                            <Input
+                                id={`${id}-signin-email`}
+                                placeholder="hi@yourcompany.com"
+                                type="email"
+                                required
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
                         </div>
                         <div className="*:not-first:mt-2">
                             <Label htmlFor={`${id}-signin-password`}>Password</Label>
@@ -57,7 +80,9 @@ const SignIn = () => {
                                 id={`${id}-signin-password`}
                                 placeholder="Enter your password"
                                 type="password"
-                                required />
+                                required 
+                                onChange={(e) => setPassword(e.target.value)}
+                                />
                         </div>
                     </div>
                     <div className="flex justify-between gap-2">
@@ -65,11 +90,14 @@ const SignIn = () => {
                             Forgot password?
                         </a>
                     </div>
-                    <Button type="button" className="w-full">
+                    <Button type="submit" className="w-full">
                         Sign in
                     </Button>
                     <p className="text-sm">
-                        Don't have any account?{" "} <SignUp />
+                        Don't have any account?{" "} 
+                        <a href="/signup" className="text-primary hover:text-primary/80 underline hover:no-underline">
+                            Sign up
+                        </a>
                     </p>
                 </form>
 

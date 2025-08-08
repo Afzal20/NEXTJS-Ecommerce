@@ -1,15 +1,34 @@
 "use client";
 
-import React, { useId, Suspense } from 'react'
+import React, { useId, Suspense, useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import PasswordCheck from "@/components/PasswordCheck"
 import SignupPageSkeleton from "@/components/SignupPageSkeleton"
+import { useRegister } from '@/lib/api';
 
 const SignUpContent = () => {
     const id = useId();
-    
+
+    const [email, setEmail] = React.useState("");
+    const [password, setPassword] = React.useState("");
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (email === "" || password === "") {
+            return
+        } try {
+            await useRegister(email, password);
+            alert("Registration successful!");
+            window.location.href = '/';
+
+        } catch (e) {
+            console.log("Registration failed:", e);
+            alert("Registration failed. Please check your credentials and try again.");
+        }
+    }
+
     return (
         <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
             <div className="w-full max-w-md">
@@ -38,19 +57,26 @@ const SignUpContent = () => {
                         </div>
                     </div>
 
-                    <form className="space-y-5">
+                    <form className="space-y-5" onSubmit={handleSubmit}>
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor={`${id}-signup-email`}>Email</Label>
-                                <Input 
-                                    id={`${id}-signup-email`} 
-                                    placeholder="hi@yourcompany.com" 
-                                    type="email" 
-                                    required 
+                                <Input
+                                    id={`${id}-signup-email`}
+                                    placeholder="hi@yourcompany.com"
+                                    type="email"
+                                    required
+                                    onChange={(e) => setEmail(e.target.value)}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <PasswordCheck />
+                                <PasswordCheck
+                                    password={password}
+                                    onPasswordChange={setPassword}
+                                    showStrengthIndicator={true}
+                                    label="New Password"
+                                    placeholder="Password"
+                                />
                             </div>
                         </div>
                         <Button type="submit" className="w-full">

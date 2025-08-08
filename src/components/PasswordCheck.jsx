@@ -6,9 +6,14 @@ import { CheckIcon, EyeIcon, EyeOffIcon, XIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-export default function PasswordCheck() {
+export default function PasswordCheck({
+  password,
+  onPasswordChange,
+  showStrengthIndicator = true,
+  label = "New Password",
+  placeholder = "Password"
+}) {
   const id = useId()
-  const [password, setPassword] = useState("")
   const [isVisible, setIsVisible] = useState(false)
 
   const toggleVisibility = () => setIsVisible((prevState) => !prevState)
@@ -52,16 +57,16 @@ export default function PasswordCheck() {
     <div>
       {/* Password input field with toggle visibility button */}
       <div className="*:not-first:mt-2">
-        <Label htmlFor={id}>New Password</Label>
+        <Label htmlFor={id}>{label}</Label>
         <div className="relative">
           <Input
             id={id}
             className="pe-9"
-            placeholder="Password"
+            placeholder={placeholder}
             type={isVisible ? "text" : "password"}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            aria-describedby={`${id}-description`}
+            onChange={(e) => onPasswordChange(e.target.value)}
+            aria-describedby={showStrengthIndicator ? `${id}-description` : undefined}
           />
           <button
             className="text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
@@ -80,57 +85,61 @@ export default function PasswordCheck() {
         </div>
       </div>
 
-      {/* Password strength indicator */}
-      <div
-        className="bg-border mt-3 mb-4 h-1 w-full overflow-hidden rounded-full"
-        role="progressbar"
-        aria-valuenow={strengthScore}
-        aria-valuemin={0}
-        aria-valuemax={4}
-        aria-label="Password strength"
-      >
-        <div
-          className={`h-full ${getStrengthColor(strengthScore)} transition-all duration-500 ease-out`}
-          style={{ width: `${(strengthScore / 4) * 100}%` }}
-        ></div>
-      </div>
+      {showStrengthIndicator && (
+        <>
+          {/* Password strength indicator */}
+          <div
+            className="bg-border mt-3 mb-4 h-1 w-full overflow-hidden rounded-full"
+            role="progressbar"
+            aria-valuenow={strengthScore}
+            aria-valuemin={0}
+            aria-valuemax={4}
+            aria-label="Password strength"
+          >
+            <div
+              className={`h-full ${getStrengthColor(strengthScore)} transition-all duration-500 ease-out`}
+              style={{ width: `${(strengthScore / 4) * 100}%` }}
+            ></div>
+          </div>
 
-      {/* Password strength description */}
-      <p
-        id={`${id}-description`}
-        className="text-foreground mb-2 text-sm font-medium"
-      >
-        {getStrengthText(strengthScore)}. Must contain:
-      </p>
+          {/* Password strength description */}
+          <p
+            id={`${id}-description`}
+            className="text-foreground mb-2 text-sm font-medium"
+          >
+            {getStrengthText(strengthScore)}. Must contain:
+          </p>
 
-      {/* Password requirements list */}
-      <ul className="space-y-1.5" aria-label="Password requirements">
-        {strength.map((req, index) => (
-          <li key={index} className="flex items-center gap-2">
-            {req.met ? (
-              <CheckIcon
-                size={16}
-                className="text-emerald-500"
-                aria-hidden="true"
-              />
-            ) : (
-              <XIcon
-                size={16}
-                className="text-muted-foreground/80"
-                aria-hidden="true"
-              />
-            )}
-            <span
-              className={`text-xs ${req.met ? "text-emerald-600" : "text-muted-foreground"}`}
-            >
-              {req.text}
-              <span className="sr-only">
-                {req.met ? " - Requirement met" : " - Requirement not met"}
-              </span>
-            </span>
-          </li>
-        ))}
-      </ul>
+          {/* Password requirements list */}
+          <ul className="space-y-1.5" aria-label="Password requirements">
+            {strength.map((req, index) => (
+              <li key={index} className="flex items-center gap-2">
+                {req.met ? (
+                  <CheckIcon
+                    size={16}
+                    className="text-emerald-500"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <XIcon
+                    size={16}
+                    className="text-muted-foreground/80"
+                    aria-hidden="true"
+                  />
+                )}
+                <span
+                  className={`text-xs ${req.met ? "text-emerald-600" : "text-muted-foreground"}`}
+                >
+                  {req.text}
+                  <span className="sr-only">
+                    {req.met ? " - Requirement met" : " - Requirement not met"}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   )
 }
