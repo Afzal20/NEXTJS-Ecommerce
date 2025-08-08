@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Dialog,
     DialogContent,
@@ -12,25 +12,42 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Input } from '@/components/ui/input';
 
+import Alert from '@/components/Alert'
+
+import Cookies from 'js-cookie';
+
 import { useLogin } from '@/lib/api'
 
 const SignIn = () => {
-    const id = useId();
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [showAlert, setShowAlert] = useState(false)
+    const [alertMessage, setAlertMessage] = useState("")
 
-    const handelSubmit = async(e) => {
+    const handelSubmit = async (e) => {
         e.preventDefault();
-        if (email === "" || password === ""){
-            return
-        }try{
-            await useLogin(email, password);
-            alert("Login successful!");
+        if (email === "" || password === "") {
+            return;
+        } 
+        try {
+            const response = await useLogin(email, password);
+            
+            Cookies.set('accessToken', response.access_token)
+            Cookies.set('refreshToken', response.refresh_token);
+            
+            // Store login success flag for home page alert
+            localStorage.setItem('loginSuccess', 'true');
+            
+            // Reload the page to show the success alert on home page
             window.location.reload();
-        }catch(e) {
 
+        } catch (e) {
             console.error("Login failed:", e);
-            alert("Login failed. Please check your credentials and try again.");
+            setAlertMessage("Login failed. Please check your credentials and try again.");
+            setShowAlert(true);
+            
+            // Hide alert after 3 seconds
+            setTimeout(() => setShowAlert(false), 3000);
         }
     }
 
@@ -65,9 +82,9 @@ const SignIn = () => {
                 <form className="space-y-5" onSubmit={handelSubmit}>
                     <div className="space-y-4">
                         <div className="*:not-first:mt-2">
-                            <Label htmlFor={`${id}-signin-email`}>Email</Label>
+                            <Label htmlFor="signin-email">Email</Label>
                             <Input
-                                id={`${id}-signin-email`}
+                                id="signin-email"
                                 placeholder="hi@yourcompany.com"
                                 type="email"
                                 required
@@ -75,14 +92,14 @@ const SignIn = () => {
                             />
                         </div>
                         <div className="*:not-first:mt-2">
-                            <Label htmlFor={`${id}-signin-password`}>Password</Label>
+                            <Label htmlFor="signin-password">Password</Label>
                             <Input
-                                id={`${id}-signin-password`}
+                                id="signin-password"
                                 placeholder="Enter your password"
                                 type="password"
-                                required 
+                                required
                                 onChange={(e) => setPassword(e.target.value)}
-                                />
+                            />
                         </div>
                     </div>
                     <div className="flex justify-between gap-2">
@@ -94,12 +111,14 @@ const SignIn = () => {
                         Sign in
                     </Button>
                     <p className="text-sm">
-                        Don't have any account?{" "} 
+                        Don't have any account?{" "}
                         <a href="/signup" className="text-primary hover:text-primary/80 underline hover:no-underline">
                             Sign up
                         </a>
                     </p>
                 </form>
+
+                {showAlert && <Alert message={alertMessage} type="error" />}
 
                 <div
                     className="before:bg-border after:bg-border flex items-center gap-3 before:h-px before:flex-1 after:h-px after:flex-1">

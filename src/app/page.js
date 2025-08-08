@@ -1,16 +1,31 @@
 "use client"
 
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import HeaderSlider from "@/components/HeaderSlider";
 import Image from "next/image";
 import ProductsCard from "@/components/ProductsCard";
 import InstantPageWrapper from "@/components/InstantPageWrapper";
 import HeroSectionSkeleton from "@/components/HeroSectionSkeleton";
 import ProductGridSkeleton from "@/components/ProductGridSkeleton";
+import Alert from "@/components/Alert";
 
 
 export default function Home() {
   const productArray = Array.from({ length: 10 }, (_, index) => index + 1);
+  const [showLoginAlert, setShowLoginAlert] = useState(false);
+
+  useEffect(() => {
+    // Check if user just logged in
+    const loginSuccess = localStorage.getItem('loginSuccess');
+    if (loginSuccess === 'true') {
+      setShowLoginAlert(true);
+      // Remove the flag so it doesn't show again
+      localStorage.removeItem('loginSuccess');
+      
+      // Hide alert after 5 seconds
+      setTimeout(() => setShowLoginAlert(false), 5000);
+    }
+  }, []);
   
   const HomePageSkeleton = () => (
     <div className="ml-[50px] mr-[50px]">
@@ -25,6 +40,13 @@ export default function Home() {
       loadingDelay={200}
     >
       <div className="ml-[50px] mr-[50px]">
+        {/* Login Success Alert */}
+        {showLoginAlert && (
+          <div className="mb-6">
+            <Alert message="Welcome back! You have successfully logged in." type="success" />
+          </div>
+        )}
+        
         <HeaderSlider />
       {/* Categories */}
       <div className='flex flex-col items-center bg-background text-foreground rounded-lg mt-[20px] p-20'>
