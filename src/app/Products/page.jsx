@@ -1,38 +1,49 @@
-"use client"
-
+'use client'
 import React, { Suspense } from 'react'
 import ProductsCard from '@/components/ProductsCard'
 import ProductGridSkeleton from '@/components/ProductGridSkeleton'
 import { StreamingList } from '@/components/StreamingComponents'
 import ProductCardSkeleton from '@/components/ProductCardSkeleton'
 import InstantPageWrapper from '@/components/InstantPageWrapper'
-import { usePageTransition } from '@/hooks/usePageTransition'
-
-// Simulate async data fetching
-const fetchProducts = async () => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    return Array.from({ length: 20 }, (_, index) => ({
-        id: index + 1,
-        image: `https://dummyimage.com/428x268?text=Product+${index + 1}`,
-        category: `Category ${(index % 5) + 1}`,
-        title: `Product ${index + 1}`,
-        price: `$${(Math.random() * 100 + 10).toFixed(2)}`
-    }))
-}
+import { getProducts } from '@/lib/api'
 
 // Products component with streaming data
 const ProductsList = () => {
     const [products, setProducts] = React.useState([])
     const [isLoading, setIsLoading] = React.useState(true)
+    const [error, setError] = React.useState(null)
 
     React.useEffect(() => {
-        fetchProducts().then((data) => {
-            setProducts(data)
-            setIsLoading(false)
-        })
+        const fetchProducts = async () => {
+            try {
+                setIsLoading(true)
+                setError(null)
+                const productsData = await getProducts()
+                setProducts(productsData)
+            } catch (err) {
+                setError('Failed to load products')
+                console.error('Error fetching products:', err)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        fetchProducts()
     }, [])
+
+    if (error) {
+        return (
+            <div className="text-center py-10">
+                <p className="text-red-500 mb-4">{error}</p>
+                <button 
+                    onClick={() => window.location.reload()} 
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                    Retry
+                </button>
+            </div>
+        )
+    }
 
     return (
         <StreamingList
