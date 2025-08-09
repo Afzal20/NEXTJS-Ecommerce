@@ -3,6 +3,7 @@
 import React from 'react'
 import { useLoading } from '@/hooks/useLoading'
 import LoadingSpinner from './LoadingSpinner'
+import Image from 'next/image'
 
 const ProductsCard = ({ 
     product = {
@@ -42,12 +43,14 @@ const ProductsCard = ({
     if (isLoading) {
         return (
             <div className={`lg:w-1/4 md:w-1/2 p-4 w-full ${className}`}>
-                <div className="animate-pulse">
-                    <div className="bg-gray-200 h-48 rounded"></div>
-                    <div className="mt-4 space-y-2">
-                        <div className="h-3 bg-gray-200 rounded w-20"></div>
-                        <div className="h-5 bg-gray-200 rounded w-32"></div>
-                        <div className="h-4 bg-gray-200 rounded w-16"></div>
+                <div className="bg-card border border-border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="animate-pulse">
+                        <div className="bg-gray-200 aspect-[4/3] w-full rounded"></div>
+                        <div className="mt-4 space-y-2">
+                            <div className="h-3 bg-gray-200 rounded w-20"></div>
+                            <div className="h-5 bg-gray-200 rounded w-32"></div>
+                            <div className="h-4 bg-gray-200 rounded w-16"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -56,46 +59,52 @@ const ProductsCard = ({
 
     return (
         <div className={`lg:w-1/4 md:w-1/2 p-4 w-full ${className}`}>
-            <a 
-                className="block relative h-48 rounded overflow-hidden cursor-pointer hover:opacity-75 transition-opacity" 
-                onClick={onClick}
-            >
-                {imageLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                        <LoadingSpinner size="medium" />
-                    </div>
-                )}
-                <img 
-                    alt={product.title || "ecommerce product"} 
-                    className={`object-cover object-center w-full h-full block transition-opacity ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
-                    src={getProductImage()} 
-                    onLoad={handleImageLoad}
-                    onError={handleImageError}
-                />
-            </a>
-            <div className="mt-4">
-                <h3 className="text-muted-foreground text-xs tracking-widest title-font mb-1 uppercase">
-                    {product.category}
-                </h3>
-                <h2 className="text-foreground title-font text-lg font-medium hover:text-primary transition-colors cursor-pointer">
-                    {product.title}
-                </h2>
-                <p className="mt-1 text-primary font-semibold">
-                    {formatPrice(product.price)}
-                </p>
-                {product.discount_percentage > 0 && (
-                    <p className="text-sm text-green-600">
-                        {product.discount_percentage}% off
+            <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:border-primary/50">
+                <div className="block relative  overflow-hidden cursor-pointer hover:opacity-90 transition-opacity" 
+                    onClick={onClick}
+                >
+                    {imageLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                            <LoadingSpinner size="medium" />
+                        </div>
+                    )}
+
+                    <Image
+                        src={getProductImage()}
+                        width={428}
+                        height={268}
+                        alt={product.title || "ecommerce product"}
+                        className="w-full h-auto object-cover"
+                        onLoad={handleImageLoad}
+                        onError={handleImageError}
+                        priority={false}
+                    /> 
+                    
+                </div>
+                <div className="p-4">
+                    <h3 className="text-muted-foreground text-xs tracking-widest title-font mb-1 uppercase">
+                        {product.category}
+                    </h3>
+                    <h2 className="text-foreground title-font text-lg font-medium hover:text-primary transition-colors cursor-pointer">
+                        {product.title}
+                    </h2>
+                    <p className="mt-1 text-primary font-semibold">
+                        {formatPrice(product.price)}
                     </p>
-                )}
-                {product.rating && (
-                    <div className="flex items-center mt-1">
-                        <span className="text-yellow-500">★</span>
-                        <span className="text-sm text-muted-foreground ml-1">
-                            {product.rating}
-                        </span>
-                    </div>
-                )}
+                    {product.discount_percentage > 0 && (
+                        <p className="text-sm text-green-600">
+                            {product.discount_percentage}% off
+                        </p>
+                    )}
+                    {product.rating && (
+                        <div className="flex items-center mt-1">
+                            <span className="text-yellow-500">★</span>
+                            <span className="text-sm text-muted-foreground ml-1">
+                                {product.rating}
+                            </span>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )
