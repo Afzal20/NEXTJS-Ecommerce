@@ -75,3 +75,14 @@ export const getProductById = async (productId) => {
         throw error;
     }
 };
+
+
+export const getTopSellingProducts = async () => {
+    try {
+        const response = await apiClient.get('/shop/top-selling-products/');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching top selling products:', error);
+        throw error;
+    }
+};

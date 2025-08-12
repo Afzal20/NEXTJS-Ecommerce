@@ -8,11 +8,14 @@ import InstantPageWrapper from "@/components/InstantPageWrapper";
 import HeroSectionSkeleton from "@/components/HeroSectionSkeleton";
 import ProductGridSkeleton from "@/components/ProductGridSkeleton";
 import Alert from "@/components/Alert";
+import { getTopSellingProducts } from "@/lib/api";
 
 
 export default function Home() {
-  const productArray = Array.from({ length: 10 }, (_, index) => index + 1);
   const [showLoginAlert, setShowLoginAlert] = useState(false);
+  const [productArray, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     // Check if user just logged in
@@ -26,6 +29,26 @@ export default function Home() {
       setTimeout(() => setShowLoginAlert(false), 5000);
     }
   }, []);
+
+  React.useEffect(() => {
+          const fetchTopSellingProducts = async () => {
+              try {
+                  setIsLoading(true)
+                  setError(null)
+                  const productsData = await getTopSellingProducts()
+                  console.log('Top Selling Products Data:', productsData) // Debug log
+                  setProducts(productsData)
+              } catch (err) {
+                  setError('Failed to load products')
+                  console.error('Error fetching products:', err)
+              } finally {
+                  setIsLoading(false)
+              }
+          }
+  
+          fetchTopSellingProducts()
+      }, [])
+  
   
   const HomePageSkeleton = () => (
     <div className="ml-[50px] mr-[50px]">
@@ -77,9 +100,42 @@ export default function Home() {
         <section className="text-muted-foreground">
           <div className="container px-5 py-24 mx-auto">
             <div className="flex flex-wrap -m-4">
-              {productArray.map((product) => (
-                <ProductsCard key={product} />
-              ))}
+              {isLoading ? (
+                // Show loading skeletons while data is being fetched
+                Array.from({ length: 8 }, (_, index) => (
+                  <ProductsCard key={`skeleton-${index}`} isLoading={true} />
+                ))
+              ) : error ? (
+                // Show error message if there's an error
+                <div className="w-full text-center py-8">
+                  <p className="text-red-500">{error}</p>
+                </div>
+              ) : productArray.length > 0 ? (
+                // Show actual products when data is loaded
+                productArray.map((topSellingProduct, index) => (
+                  <ProductsCard 
+                    key={topSellingProduct.id || `product-${index}`} 
+                    product={{
+                      id: topSellingProduct.id,
+                      thumbnail: topSellingProduct.product_thumbnail,
+                      category: topSellingProduct.product_category,
+                      title: topSellingProduct.product_title,
+                      price: topSellingProduct.product_price,
+                      discounted_price: topSellingProduct.discounted_price,
+                      rating: topSellingProduct.product_rating,
+                      stock: topSellingProduct.product_stock,
+                      brand: topSellingProduct.product_brand,
+                      is_available: topSellingProduct.is_available
+                    }}
+                    isLoading={false}
+                  />
+                ))
+              ) : (
+                // Show message when no products are available
+                <div className="w-full text-center py-8">
+                  <p className="text-muted-foreground">No top selling products available at the moment.</p>
+                </div>
+              )}
             </div>
           </div>
         </section>
