@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const API_URL = 'http://127.0.0.1:8000';
@@ -52,16 +51,10 @@ export const useLogout = () => {
 
 export const getProducts = async () => {
     try {
-        console.log('Fetching products from:', `${API_URL}/shop/products/`);
         const response = await apiClient.get('/shop/products/');
-        console.log('Products response:', response.data);
         return response.data;
     } catch (error) {
         console.error('Error fetching products:', error);
-        if (error.response) {
-            console.error('Response status:', error.response.status);
-            console.error('Response data:', error.response.data);
-        }
         throw error;
     }
 };
@@ -79,10 +72,62 @@ export const getProductById = async (productId) => {
 
 export const getTopSellingProducts = async () => {
     try {
-        const response = await apiClient.get('/shop/top-selling-products/');
+        const response = await apiClient.get(`/shop/top-selling-products/`);
         return response.data;
     } catch (error) {
         console.error('Error fetching top selling products:', error);
+        throw error;
+    }
+};
+
+
+export const getTopCategories = async () => {
+    try {
+        const response = await apiClient.get('/shop/top-categories/');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching top categories:', error);
+        throw error;
+    }
+}
+
+
+export const getCategory = async (categoryId) => {
+    try {
+        const response = await apiClient.get(`/shop/categories/`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching category by ID:', error);
+        throw error;
+    }
+}
+
+export const postGetInTouch = async (name, email, message) => {
+    /**DRF API Docs
+        {
+        "email": "user@example.com",
+        "subject": "string",
+        "details": "string",
+        "status": "Pending"
+        }
+
+        URL: /shop/contact/
+
+        Response body: 
+        {
+        "message": "Message sent successfully!"
+        }
+     */
+    try {
+        const response = await apiClient.post('/shop/contact/', {
+            email: email,
+            subject: `Message from ${name}`,
+            details: message,
+            status: "Pending"
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error posting get in touch:', error);
         throw error;
     }
 };
