@@ -9,6 +9,7 @@ import ProductGridSkeleton from "@/components/ProductGridSkeleton";
 import Alert from "@/components/Alert";
 import HeaderSlider from "@/components/HeaderSlider";
 import { getTopSellingProducts, getTopCategories, postGetInTouch } from "@/lib/api";
+import HeroSection from "./HeroSection";
 
 export default function HomePageClient({ 
   initialProducts = [], 
@@ -137,15 +138,16 @@ export default function HomePageClient({
       loadingSkeleton={<HomePageSkeleton />}
       loadingDelay={200}
     >
+      <HeaderSlider />
+      
       <div className="ml-[50px] mr-[50px]">
         {/* Login Success Alert */}
         {showLoginAlert && (
-          <div className="mb-6">
+          <div className="mb-6 mt-6">
             <Alert message="Welcome back! You have successfully logged in." type="success" />
           </div>
         )}
 
-        <HeaderSlider />
         {/* Categories */}
         <div className='flex flex-col items-center bg-background text-foreground rounded-lg mt-[20px] p-20'>
           <h1 className='text-3xl font-bold text-center'>Top Products Categories</h1>
@@ -217,10 +219,7 @@ export default function HomePageClient({
         </div>
         
         {/* Hero Section */}
-        <div className='flex flex-col items-center w-[99%] bg-gradient-to-b mt-16 from-background to-muted p-10 rounded-lg shadow-lg'>
-          <h1 className='text-5xl font-bold mt-10 text-foreground'>Welcome to Our Store</h1>
-          <p className='text-lg mt-4 text-muted-foreground'>Discover the best products at unbeatable prices.</p>
-        </div>
+        <HeroSection/> 
 
         {/* Top Selling Products */}
         <div className='flex flex-col items-center'>

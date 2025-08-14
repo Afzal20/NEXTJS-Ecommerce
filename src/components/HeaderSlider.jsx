@@ -1,98 +1,70 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { assets } from "@/assets/assets";
 import Image from "next/image";
+import { getSlider } from "@/lib/api";
 
 const HeaderSlider = () => {
-  const sliderData = [
-    {
-      id: 1,
-      title: "Experience Pure Sound - Your Perfect Headphones Awaits!",
-      offer: "Limited Time Offer 30% Off",
-      buttonText1: "Buy now",
-      buttonText2: "Find more",
-      imgSrc: assets.header_headphone_image,
-    },
-    {
-      id: 2,
-      title: "Next-Level Gaming Starts Here - Discover PlayStation 5 Today!",
-      offer: "Hurry up only few lefts!",
-      buttonText1: "Shop Now",
-      buttonText2: "Explore Deals",
-      imgSrc: assets.header_playstation_image,
-    },
-    {
-      id: 3,
-      title: "Power Meets Elegance - Apple MacBook Pro is Here for you!",
-      offer: "Exclusive Deal 40% Off",
-      buttonText1: "Order Now",
-      buttonText2: "Learn More",
-      imgSrc: assets.header_macbook_image,
-    },
-  ];
-
+  const [slides, setSlides] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
+    const fetchSlides = async () => {
+      try {
+        const data = await getSlider(); // expects [{ image: "url" }]
+        setSlides(data);
+      } catch (error) {
+        console.error("Slider fetch error:", error);
+      }
+    };
+    fetchSlides();
+  }, []);
+
+  // Auto-slide every 3s
+  useEffect(() => {
+    if (slides.length === 0) return;
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % sliderData.length);
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, [sliderData.length]);
+  }, [slides.length]);
 
   const handleSlideChange = (index) => {
     setCurrentSlide(index);
   };
 
   return (
-    <div className="overflow-hidden relative w-full">
-      <div
-        className="flex transition-transform duration-700 ease-in-out"
-        style={{
-          transform: `translateX(-${currentSlide * 100}%)`,
-        }}
-      >
-        {sliderData.map((slide, index) => (
+    <div className="overflow-hidden relative  background" style={{ height: "350px" }}>
+      {/* Slides container */}
+      <div className="relative h-full">
+        {slides.map((slide, idx) => (
           <div
-            key={slide.id}
-            className="flex flex-col-reverse md:flex-row items-center justify-between bg-muted py-8 md:px-14 px-5 mt-6 rounded-xl min-w-full"
+            key={idx}
+            className={`absolute top-0 left-0 w-full h-full transition-transform duration-1000 ease-in-out ${idx === currentSlide ? "translate-x-0 rounded-sm" :
+                idx < currentSlide ? "-translate-x-full" : "translate-x-full"
+              }`}
           >
-            <div className="md:pl-8 mt-10 md:mt-0">
-              <p className="md:text-base text-muted-foreground pb-1">{slide.offer}</p>
-              <h1 className="max-w-lg md:text-[40px] md:leading-[48px] text-2xl font-semibold text-foreground">
-                {slide.title}
-              </h1>
-              <div className="flex items-center mt-4 md:mt-6 ">
-                <button className="md:px-10 px-7 md:py-2.5 py-2 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90">
-                  {slide.buttonText1}
-                </button>
-                <button className="group flex items-center gap-2 px-6 py-2.5 font-medium text-foreground hover:text-primary">
-                  {slide.buttonText2}
-                  <Image className="group-hover:translate-x-1 transition" src={assets.arrow_icon} alt="arrow_icon" />
-                </button>
-              </div>
-            </div>
-            <div className="flex items-center flex-1 justify-center">
-              <Image
-                className="md:w-72 w-48"
-                src={slide.imgSrc}
-                alt={`Slide ${index + 1}`}
-              />
-            </div>
+            <Image
+              src={slide.image}
+              alt={`Slide ${idx + 1}`}
+              width={1920}
+              height={350}
+              className="w-full h-full object-cover pl-12 pr-12 rounded-[5px]"
+            />
           </div>
         ))}
       </div>
 
-      <div className="flex items-center justify-center gap-2 mt-8">
-        {sliderData.map((_, index) => (
-          <div
+      {/* Dot indicators */}
+      <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-2">
+        {slides.map((_, index) => (
+          <button
             key={index}
             onClick={() => handleSlideChange(index)}
-            className={`h-2 w-2 rounded-full cursor-pointer ${
-              currentSlide === index ? "bg-primary" : "bg-muted-foreground/30"
-            }`}
-          ></div>
+            className={`h-2 w-2 rounded-full cursor-pointer transition-all duration-300 ${currentSlide === index ? "bg-white w-4" : "bg-gray-400/50"
+              }`}
+            aria-label={`Go to slide ${index + 1}`}
+          />
         ))}
       </div>
     </div>

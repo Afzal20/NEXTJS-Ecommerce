@@ -131,3 +131,14 @@ export const postGetInTouch = async (name, email, message) => {
         throw error;
     }
 };
+
+
+export const getSlider = async () => {
+    try {
+        const response = await apiClient.get('/shop/sliders/');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching slider:', error);
+        throw error;
+    }
+};
