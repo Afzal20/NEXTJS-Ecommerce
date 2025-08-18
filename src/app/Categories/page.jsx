@@ -5,6 +5,20 @@ import Image from 'next/image'
 import CategoriesPageSkeleton from '@/components/CategoriesPageSkeleton'
 import { getCategory } from '@/lib/api'
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000';
+
+const buildImageSrc = (imagePath) => {
+  if (!imagePath || typeof imagePath !== 'string') return null;
+  try {
+    // If imagePath is absolute, URL() returns it; if relative, resolve against API_BASE
+    const url = new URL(imagePath, API_BASE);
+    return url.href;
+  } catch (e) {
+    // Invalid URL; skip rendering the image
+    return null;
+  }
+};
+
 const CategoriesContent = () => {
   const [categories, setCategories] = React.useState([])
   const [isLoading, setIsLoading] = React.useState(true)
@@ -51,19 +65,25 @@ const CategoriesContent = () => {
             <div key={category.id} className='bg-card text-card-foreground p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-border'>
               {/* Category Image */}
               <div className='w-full h-32 mb-4 relative overflow-hidden rounded-md'>
-                {category.image ? (
-                  <Image
-                    src={`http://localhost:8000${category.image}`}
-                    alt={category.name}
-                    fill
-                    className='object-cover'
-                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
-                  />
-                ) : (
-                  <div className='w-full h-full bg-gray-200 flex items-center justify-center'>
-                    <span className='text-gray-500 text-sm'>No Image</span>
-                  </div>
-                )}
+                {(() => {
+                  const src = buildImageSrc(category.image);
+                  if (src) {
+                    return (
+                      <Image
+                        src={src}
+                        alt={category.name}
+                        fill
+                        className='object-cover'
+                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+                      />
+                    );
+                  }
+                  return (
+                    <div className='w-full h-full bg-gray-200 flex items-center justify-center'>
+                      <span className='text-gray-500 text-sm'>No Image</span>
+                    </div>
+                  );
+                })()}
               </div>
               
               <h2 className='text-xl font-semibold'>{category.name}</h2>

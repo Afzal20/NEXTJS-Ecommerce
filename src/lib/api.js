@@ -142,3 +142,86 @@ export const getSlider = async () => {
         throw error;
     }
 };
+
+export const getHeroSections = async () => {
+    try {
+        const response = await apiClient.get('/shop/hero-sections/');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching hero sections:', error);
+        throw error;
+    }
+};
+
+
+export const verifyAccessToken = async (accessToken) => {
+    try {
+        const response = await apiClient.get('/accounts/token/verify-access/', { headers: { Authorization: `Bearer ${accessToken}` } });
+        return response.data;
+    } catch (error) {
+        console.error('Error verifying access token:', error);
+        throw error;
+    }
+};
+
+export const refreshAccessToken = async (refreshToken) => {
+    try {
+        const response = await apiClient.post('/accounts/token/refresh/', { 
+            refresh: refreshToken 
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error refreshing access token:', error);
+        throw error;
+    }
+};
+
+export const getUserProfile = async (accessToken) => {
+    try {
+        const response = await apiClient.get('/accounts/user/profile/', { 
+            headers: { Authorization: `Bearer ${accessToken}` } 
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        throw error;
+    }
+};
+
+export const updateUserProfile = async (accessToken, profileData) => {
+    try {
+        const response = await apiClient.patch('/accounts/user/profile/', profileData, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error updating user profile:', error);
+        throw error;
+    }
+};
+
+export const updateUserProfileWithImage = async (accessToken, formData) => {
+    try {
+        const response = await apiClient.patch('/accounts/user/profile/', formData, {
+            headers: { 
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error updating user profile with image:', error);
+        throw error;
+    }
+};
+
+// Helper function to make authenticated API calls with automatic token refresh
+export const makeAuthenticatedRequest = async (requestFunc, getValidAccessToken) => {
+    try {
+        const accessToken = await getValidAccessToken()
+        return await requestFunc(accessToken)
+    } catch (error) {
+        console.error('Authenticated request failed:', error)
+        throw error
+    }
+}

@@ -52,7 +52,6 @@ export default function HomePageClient({
           setIsLoading(true)
           setError(null)
           const productsData = await getTopSellingProducts()
-          console.log('Top Selling Products Data:', productsData) // Debug log
           setProducts(productsData)
         } catch (err) {
           setError('Failed to load products')
@@ -74,7 +73,6 @@ export default function HomePageClient({
           setIsLoading(true)
           setError(null)
           const categoriesData = await getTopCategories()
-          console.log('Top Categories Data:', categoriesData) // Debug log
           setCategoriesData(categoriesData)
         } catch (err) {
           setError('Failed to load categories')
@@ -168,8 +166,7 @@ export default function HomePageClient({
                 </div>
               ) : categoriesData.length > 0 ? (
                 categoriesData.map((category, index) => {
-                  // Debug log to see category structure
-                  console.log('Category data:', category);
+                  // Rendering category card
                   
                   // Get category image with fallback
                   const getCategoryImage = () => {
