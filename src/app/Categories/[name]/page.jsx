@@ -9,8 +9,17 @@ const CategoryContent = () => {
             <section className="text-muted-foreground ml-[50px] mr-[50px]">
                 <div className="container px-5 py-24 mx-auto">
                     <div className="flex flex-wrap -m-4">
-                        {productArray.map((product) => (
-                            <ProductsCard key={product} />
+                        {productArray.map((product, index) => (
+                            <ProductsCard 
+                                key={product} 
+                                product={{
+                                    id: index + 200, // dummy id for category products
+                                    thumbnail: "https://dummyimage.com/428x268",
+                                    category: "Category Product",
+                                    title: `Category Product ${index + 1}`,
+                                    price: (Math.random() * 150 + 25).toFixed(2)
+                                }}
+                            />
                         ))}
                     </div>
                 </div>

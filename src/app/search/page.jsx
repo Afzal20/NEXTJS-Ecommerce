@@ -11,8 +11,17 @@ const SearchContent = () => {
             <section className="text-gray-400">
                 <div className="container px-5 py-24 mx-auto">
                     <div className="flex flex-wrap -m-4">
-                        {productArray.map((product) => (
-                            <ProductsCard key={product} />
+                        {productArray.map((product, index) => (
+                            <ProductsCard 
+                                key={product} 
+                                product={{
+                                    id: index + 300, // dummy id for search results
+                                    thumbnail: "https://dummyimage.com/428x268",
+                                    category: "Search Result",
+                                    title: `Search Result ${index + 1}`,
+                                    price: (Math.random() * 200 + 10).toFixed(2)
+                                }}
+                            />
                         ))}
                     </div>
                 </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import { FaStar } from 'react-icons/fa';
 import { FaPlus } from "react-icons/fa6";
 import { FaMinus } from "react-icons/fa6";
@@ -10,6 +11,10 @@ import ProductsCard from '@/components/ProductsCard';
 import { assets } from "@/assets/assets";
 import Image from 'next/image';
 import ProductDetailSkeleton from '@/components/ProductDetailSkeleton';
+import { getProductById } from '@/lib/api';
+import useCartStore from '@/hooks/useCartStore';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/Toast';
 
 
 const products = [
@@ -28,21 +33,77 @@ const products = [
 ]
 
 const ProductDetailsCard = () => {
-
+    const params = useParams();
+    const { isAuthenticated } = useAuth();
+    const { addToCart, addToLocalCart, isLoading: cartLoading } = useCartStore();
+    const { toast } = useToast();
+    
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [activeProduct, setActiveProduct] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const [activeTab, setActiveTab] = useState('description');
 
+    useEffect(() => {
+        if (params.id) {
+            fetchProduct();
+        }
+    }, [params.id]);
+
+    const fetchProduct = async () => {
+        try {
+            setLoading(true);
+            const data = await getProductById(params.id);
+            setProduct(data);
+        } catch (err) {
+            setError('Failed to load product');
+            console.error('Error fetching product:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAddToCart = async () => {
+        if (!product) return;
+
+        try {
+            if (isAuthenticated) {
+                await addToCart(product, quantity);
+                toast.success('Product added to cart!');
+            } else {
+                addToLocalCart(product, quantity);
+                toast.success('Product added to cart!');
+            }
+        } catch (error) {
+            toast.error('Failed to add product to cart');
+            console.error('Add to cart error:', error);
+        }
+    };
+
     // handle decrease 
     const decrease = () => {
         if (quantity > 1) {
-
             setQuantity(quantity - 1);
         }
     }
+    
     // handle increase 
     const increase = () => {
         setQuantity(quantity + 1);
+    }
+
+    if (loading) {
+        return <ProductDetailSkeleton />;
+    }
+
+    if (error || !product) {
+        return (
+            <div className="container mx-auto px-4 py-8 text-center">
+                <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+                <p className="text-gray-600">{error || 'Product not found'}</p>
+            </div>
+        );
     }
 
     const RelatedProducts = Array.from({ length: 10 }, (_, index) => index + 1);
@@ -84,16 +145,22 @@ const ProductDetailsCard = () => {
                     <div className='flex flex-col gap-6 w-full'>
 
                         <div className="flex items-center gap-2">
-                            <span className="text-yellow-500"><FaStar /></span>
-                            <span className="text-yellow-500"><FaStar /></span>
-                            <span className="text-yellow-500"><FaStar /></span>
-                            <span className="text-yellow-500"><FaStar /></span>
-                            <span className="text-yellow-500"><FaStar /></span>
-                            <span className='text-lg font-archivo text-foreground font-semibold ml-2'>(4.9/5)</span>
+                            {[...Array(5)].map((_, i) => (
+                                <span key={i} className="text-yellow-500"><FaStar /></span>
+                            ))}
+                            <span className='text-lg font-archivo text-foreground font-semibold ml-2'>
+                                ({product.reviews?.length || 0} reviews)
+                            </span>
                         </div>
-                        <h1 className='text-4xl text-foreground font-archivo font-bold capitalize leading-tight'>classic vanilla ice cream</h1>
-                        <p className='text-4xl text-primary font-archivo font-bold'>$5.99</p>
-                        <p className='text-lg text-muted-foreground font-archivo font-normal leading-relaxed'>Neque porro reisquam est aui Lorem ipsum dolor, sit amet consectetur adipisicing elit. Incidunt, repellendus! Lorem ipsum dolor sit amet.</p>
+                        <h1 className='text-4xl text-foreground font-archivo font-bold capitalize leading-tight'>
+                            {product.title || product.name}
+                        </h1>
+                        <p className='text-4xl text-primary font-archivo font-bold'>
+                            ${parseFloat(product.price || 0).toFixed(2)}
+                        </p>
+                        <p className='text-lg text-muted-foreground font-archivo font-normal leading-relaxed'>
+                            {product.description || product.product_description || 'No description available.'}
+                        </p>
 
                         <div className="flex flex-col gap-5">
                             <h4 className='text-xl text-foreground font-archivo font-bold'>color:</h4>
@@ -128,8 +195,13 @@ const ProductDetailsCard = () => {
                                 <button onClick={increase} className='flex items-center justify-center w-8 h-8 text-foreground hover:text-primary transition-colors'><FaPlus size={'1rem'} /></button>
                             </div>
 
-                            <button type='submit' className='w-full sm:w-auto px-8 h-14 rounded-full bg-primary hover:bg-primary/90 text-lg text-primary-foreground font-archivo font-semibold capitalize cursor-pointer flex justify-center items-center gap-3 transition-all duration-200'>
-                                add to cart <GoArrowRight size={'1.2rem'} />
+                            <button 
+                                type='button' 
+                                onClick={handleAddToCart}
+                                disabled={cartLoading}
+                                className='w-full sm:w-auto px-8 h-14 rounded-full bg-primary hover:bg-primary/90 text-lg text-primary-foreground font-archivo font-semibold capitalize cursor-pointer flex justify-center items-center gap-3 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
+                            >
+                                {cartLoading ? 'Adding...' : 'add to cart'} <GoArrowRight size={'1.2rem'} />
                             </button>
                         </div>
 
@@ -241,8 +313,17 @@ const ProductDetailsCard = () => {
                     <section className="text-muted-foreground ml-[50px] mr-[50px]">
                         <div className="container px-5 py-24 mx-auto">
                             <div className="flex flex-wrap -m-4">
-                                {RelatedProducts.map((product) => (
-                                    <ProductsCard key={product} />
+                                {products.map((product, index) => (
+                                    <ProductsCard 
+                                        key={index} 
+                                        product={{
+                                            id: index + 100, // dummy id for now
+                                            thumbnail: product.image,
+                                            category: "Electronics",
+                                            title: `Related Product ${index + 1}`,
+                                            price: (Math.random() * 100 + 50).toFixed(2)
+                                        }}
+                                    />
                                 ))}
                             </div>
                         </div>

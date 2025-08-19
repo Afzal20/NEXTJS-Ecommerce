@@ -1,70 +1,57 @@
 "use client"; 
 
-import React, { Fragment, useState } from "react";
-import { Trash2 } from "lucide-react";
+import React, { Fragment, useState, useEffect } from "react";
+import { Trash2, ShoppingCart } from "lucide-react";
+import useCartStore from "@/hooks/useCartStore";
+import { useAuth } from "@/hooks/useAuth";
 
-
-const productList = [
-    {
-        id: 1,
-        img: "https://cdn.easyfrontend.com/pictures/portfolio/portfolio14.jpg",
-        title: "ABUK Home Appliance Surge Protector Voltage Brownout Plug Outlet Power Strip Surge Protector With Pass Button",
-        price: "158",
-        qty: 2,
-    },
-    {
-        id: 2,
-        img: "https://cdn.easyfrontend.com/pictures/portfolio/portfolio20.jpg",
-        title: "Forsining 3d Logo Design Hollow Engraving Black Gold Case Leather Skeleton Mechanical Watches Men Luxury Brand Heren Horloge",
-        price: "7390",
-        qty: 2,
-    },
-    {
-        id: 3,
-        img: "https://cdn.easyfrontend.com/pictures/portfolio/portfolio19.jpg",
-        title: "Factory Brand Wholesale 5# Zinc Accessories Custom Hook Slider Metal #5 For Clothing garment jacket",
-        price: "21452",
-        qty: 2,
-    },
-    {
-        id: 4,
-        img: "https://cdn.easyfrontend.com/pictures/portfolio/portfolio15.jpg",
-        title: "Factory Direct Sales Stainless Steel Heat Resistant Custom Compression Spring Manufacturer Spring Steel",
-        price: "17652",
-        qty: 2,
-    },
-];
-
-const QtyField = ({ name, value, onChange }) => {
-    const qtyControl = (qty) =>
-        onChange({
-            target: {
-                name,
-                type: "radio",
-                value: qty < 1 ? 1 : qty,
-            },
-        });
+const QtyField = ({ name, value, onChange, isLoading }) => {
+    const qtyControl = (qty) => {
+        const newQty = qty < 1 ? 1 : qty;
+        onChange(newQty);
+    };
 
     return (
         <div className="h-10 border border-border rounded-full flex w-36 relative mt-4 overflow-hidden">
-            <button className="px-4 py-1 inline-flex justify-center border-r border-border text-primary hover:bg-primary hover:bg-opacity-10" type="button" onClick={() => qtyControl(parseInt(value) - 1)}>
+            <button 
+                className="px-4 py-1 inline-flex justify-center border-r border-border text-primary hover:bg-primary hover:bg-opacity-10 disabled:opacity-50" 
+                type="button" 
+                onClick={() => qtyControl(parseInt(value) - 1)}
+                disabled={isLoading}
+            >
                 -
             </button>
-            <input type="number" className="px-4 py-1 inline-flex justify-center max-w-[60px] text-center bg-transparent focus:outline-none" value={value} onChange={(e) => qtyControl(e.target.value)} />
-            <button className="px-4 py-1 inline-flex justify-center border-l border-border text-primary hover:bg-primary hover:bg-opacity-10" type="button" onClick={() => qtyControl(parseInt(value) + 1)}>
+            <input 
+                type="number" 
+                className="px-4 py-1 inline-flex justify-center max-w-[60px] text-center bg-transparent focus:outline-none" 
+                value={value} 
+                onChange={(e) => qtyControl(e.target.value)}
+                disabled={isLoading}
+            />
+            <button 
+                className="px-4 py-1 inline-flex justify-center border-l border-border text-primary hover:bg-primary hover:bg-opacity-10 disabled:opacity-50" 
+                type="button" 
+                onClick={() => qtyControl(parseInt(value) + 1)}
+                disabled={isLoading}
+            >
                 +
             </button>
         </div>
     );
 };
 
-const ProductItem = ({ item, index, onChange, onDelete }) => {
-    const { img, title, price, qty } = item;
+const ProductItem = ({ item, onQuantityChange, onDelete, isLoading }) => {
+    const { id, thumbnail, title, price, quantity } = item;
+    
     return (
         <div className="flex flex-col md:flex-row items-start p-2 md:p-6 mb-4">
             <div className="w-full lg:max-w-[150px] rounded-xl mr-4 md:mr-6 mb-4 lg:mb-0">
                 <a href="#!">
-                    <img src={img} alt={title} className="max-w-full h-auto rounded-xl mx-auto" />
+                    <img 
+                        src={thumbnail || "https://via.placeholder.com/150"} 
+                        alt={title} 
+                        className="max-w-full h-auto rounded-xl mx-auto" 
+                    />
                 </a>
             </div>
 
@@ -75,15 +62,21 @@ const ProductItem = ({ item, index, onChange, onDelete }) => {
                         <a href="#!">{title}</a>
                     </div>
                     <div>
-                        <h3 className="text-xl font-bold text-primary">{price}$ </h3>
-                        <QtyField name={`ezy__epcart2-qty-${index}`} value={qty} onChange={(e) => onChange(e, index)} />
+                        <h3 className="text-xl font-bold text-primary">${parseFloat(price).toFixed(2)}</h3>
+                        <QtyField 
+                            name={`cart-qty-${id}`} 
+                            value={quantity} 
+                            onChange={(newQty) => onQuantityChange(id, newQty)}
+                            isLoading={isLoading}
+                        />
                     </div>
                 </div>
                 {/* delete button  */}
                 <div className="ml-4">
                     <button 
-                        className="w-10 h-10 bg-secondary hover:bg-destructive hover:bg-opacity-10 text-destructive hover:text-destructive-foreground inline-flex justify-center items-center rounded-full transition-colors"
-                        onClick={() => onDelete(index)}
+                        className="w-10 h-10 bg-secondary hover:bg-destructive hover:bg-opacity-10 text-destructive hover:text-destructive-foreground inline-flex justify-center items-center rounded-full transition-colors disabled:opacity-50"
+                        onClick={() => onDelete(id)}
+                        disabled={isLoading}
                         title="Remove item"
                     >
                         <Trash2 size={16} />
@@ -95,36 +88,52 @@ const ProductItem = ({ item, index, onChange, onDelete }) => {
 };
 
 const CartContent = () => {
-    const [products, setProducts] = useState([...productList]);
+    const { isAuthenticated } = useAuth();
+    const { 
+        cartItems, 
+        cartSummary, 
+        isLoading, 
+        error,
+        fetchCartItems, 
+        removeFromCart, 
+        updateQuantity,
+        removeFromLocalCart,
+        updateLocalQuantity
+    } = useCartStore();
 
-    const onChange = (e, index) => {
-        const { value } = e.target;
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchCartItems();
+        }
+    }, [isAuthenticated, fetchCartItems]);
 
-        setProducts([
-            ...products.slice(0, index),
-            {
-                ...products[index],
-                qty: parseInt(value) || 1,
-            },
-            ...products.slice(index + 1),
-        ]);
+    const handleQuantityChange = async (itemId, newQuantity) => {
+        if (isAuthenticated) {
+            await updateQuantity(itemId, newQuantity);
+        } else {
+            updateLocalQuantity(itemId, newQuantity);
+        }
     };
 
-    const onDelete = (index) => {
-        setProducts(products.filter((_, i) => i !== index));
+    const handleDelete = async (itemId) => {
+        if (isAuthenticated) {
+            await removeFromCart(itemId);
+        } else {
+            removeFromLocalCart(itemId);
+        }
     };
 
-    const calculateSubtotal = () => {
-        return products.reduce((total, product) => {
-            return total + (parseFloat(product.price.replace(/,/g, '')) * product.qty);
-        }, 0);
-    };
-
-    const subtotal = calculateSubtotal();
-    const shippingFee = 99;
-    const tax = Math.round(subtotal * 0.08); // 8% tax
-    const total = subtotal + shippingFee + tax;
-    const totalItems = products.reduce((total, product) => total + product.qty, 0);
+    if (isLoading) {
+        return (
+            <section className="py-14 md:py-24 bg-background text-foreground relative overflow-hidden z-10">
+                <div className="container px-4 mx-auto">
+                    <div className="flex justify-center items-center py-16">
+                        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="py-14 md:py-24 bg-background text-foreground relative overflow-hidden z-10">
@@ -132,12 +141,18 @@ const CartContent = () => {
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold">Shopping Cart</h1>
                     <p className="text-muted-foreground mt-2">
-                        {totalItems} {totalItems === 1 ? 'item' : 'items'} in your cart
+                        {cartSummary.totalItems} {cartSummary.totalItems === 1 ? 'item' : 'items'} in your cart
                     </p>
+                    {error && (
+                        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-2 rounded-lg mt-4">
+                            Error: {error}
+                        </div>
+                    )}
                 </div>
                 
-                {products.length === 0 ? (
+                {cartItems.length === 0 ? (
                     <div className="text-center py-16">
+                        <ShoppingCart size={64} className="mx-auto mb-4 text-muted-foreground" />
                         <h2 className="text-2xl font-semibold mb-4">Your cart is empty</h2>
                         <p className="text-muted-foreground mb-8">Add some products to get started!</p>
                         <a href="/Products" className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-lg inline-block transition-colors">
@@ -148,14 +163,14 @@ const CartContent = () => {
                     <div className="flex flex-col lg:flex-row gap-6">
                         {/* products  */}
                         <div className="bg-card rounded-xl w-full lg:w-2/3">
-                            {products.map((item, i) => (
-                                <Fragment key={`product-${i}`}>
+                            {cartItems.map((item, i) => (
+                                <Fragment key={`product-${item.id || i}`}>
                                     {!!i && <hr className="my-4 border-border" />}
                                     <ProductItem 
                                         item={item} 
-                                        index={i} 
-                                        onChange={onChange} 
-                                        onDelete={onDelete}
+                                        onQuantityChange={handleQuantityChange} 
+                                        onDelete={handleDelete}
+                                        isLoading={isLoading}
                                     />
                                 </Fragment>
                             ))}
@@ -169,31 +184,31 @@ const CartContent = () => {
 
                                     <div className="flex justify-between items-center">
                                         <span>Sub total</span>
-                                        <span className="font-bold">$.{subtotal.toLocaleString()}</span>
+                                        <span className="font-bold">${cartSummary.subtotal.toFixed(2)}</span>
                                     </div>
                                     <hr className="my-4 border-border" />
                                     <div className="flex justify-between items-center">
                                         <span>Shipping Fee</span>
-                                        <span className="font-bold">$. {shippingFee}</span>
+                                        <span className="font-bold">${cartSummary.shippingFee.toFixed(2)}</span>
                                     </div>
                                     <hr className="my-4 border-border" />
                                     <div className="flex justify-between items-center">
                                         <span>Tax</span>
-                                        <span className="font-bold">$. {tax.toLocaleString()}</span>
+                                        <span className="font-bold">${cartSummary.tax.toFixed(2)}</span>
                                     </div>
                                     <hr className="my-4 border-border" />
                                     <div className="flex justify-between items-center">
                                         <span className="text-lg font-bold">Total</span>
-                                        <span className="text-lg font-bold">$.{total.toLocaleString()}</span>
+                                        <span className="text-lg font-bold">${cartSummary.total.toFixed(2)}</span>
                                     </div>
                                 </div>
                                 <div className="">
-                                    <button className="w-full bg-primary rounded-md text-primary-foreground hover:bg-primary/90 transition-colors py-3 font-medium" 
-                                        onClick={() => 
-                                            window.location.href = '/checkout'
-                                        }
+                                    <button 
+                                        className="w-full bg-primary rounded-md text-primary-foreground hover:bg-primary/90 transition-colors py-3 font-medium disabled:opacity-50" 
+                                        onClick={() => window.location.href = '/checkout'}
+                                        disabled={isLoading || cartItems.length === 0}
                                     >
-                                        CHECKOUT ({totalItems})
+                                        CHECKOUT ({cartSummary.totalItems})
                                     </button>
                                 </div>
                             </div>

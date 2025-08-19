@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useInstantNavigation } from '@/hooks/usePageTransition'
+import useCartStore from '@/hooks/useCartStore'
+import { checkoutApi } from '@/lib/checkoutApi'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -12,115 +14,115 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Checkbox } from '@/components/ui/checkbox'
 import CheckoutPageSkeleton from '@/components/CheckoutPageSkeleton'
+import { useToast } from '@/components/Toast'
 
 const CheckoutContent = () => {
   const { userProfile, isAuthenticated, isLoading } = useAuth()
   const { navigateTo } = useInstantNavigation()
+  const { cartItems, cartSummary, clearCart } = useCartStore()
+  const { toast } = useToast()
   
-  // Order state
-  const [cartItems, setCartItems] = useState([])
-  const [orderSummary, setOrderSummary] = useState({
-    subtotal: 0,
-    shipping: 0,
-    tax: 0,
-    total: 0
-  })
+  // Backend data
+  const [districts, setDistricts] = useState([])
   
   // Form states
   const [shippingForm, setShippingForm] = useState({
     first_name: '',
     last_name: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
+    phone_number: '',
     district: '',
     upozila: '',
-    postal_code: ''
-  })
-  
-  const [billingForm, setBillingForm] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone: '',
-    address: '',
     city: '',
-    district: '',
-    upozila: '',
-    postal_code: ''
+    address: ''
   })
   
-  const [paymentMethod, setPaymentMethod] = useState('cod')
-  const [useSameAddress, setUseSameAddress] = useState(true)
+  const [paymentForm, setPaymentForm] = useState({
+    payment_method: 'cod',
+    phone_number_payment: '',
+    transaction_id: ''
+  })
+  
   const [agreeToTerms, setAgreeToTerms] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
-  const [orderNotes, setOrderNotes] = useState('')
 
-  // Dummy cart data for demonstration
+  // Load districts and user data
   useEffect(() => {
-    // Simulate cart data from localStorage or context
-    const dummyCart = [
-      {
-        id: 1,
-        name: "Premium Wireless Headphones",
-        price: 2999,
-        quantity: 1,
-        image: "/api/placeholder/80/80",
-        variant: "Black"
-      },
-      {
-        id: 2,
-        name: "Smart Watch Series X",
-        price: 15999,
-        quantity: 2,
-        image: "/api/placeholder/80/80",
-        variant: "Silver"
-      },
-      {
-        id: 3,
-        name: "Bluetooth Speaker",
-        price: 4999,
-        quantity: 1,
-        image: "/api/placeholder/80/80",
-        variant: "Blue"
-      }
-    ]
-    setCartItems(dummyCart)
-  }, [])
-
-  // Pre-fill forms with user profile data
-  useEffect(() => {
+    loadDistricts()
     if (userProfile) {
-      const userFormData = {
+      setShippingForm(prev => ({
+        ...prev,
         first_name: userProfile.first_name || '',
         last_name: userProfile.last_name || '',
-        email: userProfile.email || '',
-        phone: userProfile.phone_number || '',
-        address: userProfile.address || '',
-        city: userProfile.city || '',
-        district: userProfile.district || '',
-        upozila: userProfile.upozila || '',
-        postal_code: ''
-      }
-      setShippingForm(userFormData)
-      setBillingForm(userFormData)
+        phone_number: userProfile.phone_number || ''
+      }))
     }
   }, [userProfile])
 
-  // Calculate order summary
-  const calculatedSummary = useMemo(() => {
-    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-    const shipping = subtotal > 5000 ? 0 : 100 // Free shipping over 5000 BDT
-    const tax = Math.round(subtotal * 0.05) // 5% tax
-    const total = subtotal + shipping + tax
-    
-    return { subtotal, shipping, tax, total }
-  }, [cartItems])
+  const loadDistricts = async () => {
+    try {
+      const data = await checkoutApi.getDistricts()
+      setDistricts(data)
+    } catch (error) {
+      console.error('Error loading districts:', error)
+      toast.error('Failed to load districts')
+    }
+  }
 
-  useEffect(() => {
-    setOrderSummary(calculatedSummary)
-  }, [calculatedSummary])
+  const handleOrderSubmit = async () => {
+    if (!isFormValid() || !isAuthenticated) {
+      toast.error('Please complete all required fields')
+      return
+    }
+
+    setIsProcessing(true)
+    try {
+      const orderData = {
+        ...shippingForm,
+        ...paymentForm,
+        // Convert cart items to order items format expected by backend
+        order_items: cartItems.map(item => ({
+          product: item.title || item.name,
+          quantity: item.quantity,
+          price: item.price
+        }))
+      }
+
+      const order = await checkoutApi.createOrder(orderData)
+      
+      // Clear cart after successful order
+      clearCart()
+      
+      toast.success('Order placed successfully!')
+      navigateTo(`/order-success?orderId=${order.id}`)
+      
+    } catch (error) {
+      console.error('Order creation failed:', error)
+      toast.error('Failed to place order. Please try again.')
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  // Calculate order summary
+  const orderSummary = useMemo(() => {
+    return {
+      subtotal: cartSummary.subtotal,
+      shipping: cartSummary.shippingFee,
+      tax: cartSummary.tax,
+      total: cartSummary.total
+    }
+  }, [cartSummary])
+
+  // Form validation
+  const isFormValid = () => {
+    const requiredShippingFields = ['first_name', 'last_name', 'phone_number', 'district', 'upozila', 'city', 'address']
+    const shippingValid = requiredShippingFields.every(field => shippingForm[field]?.trim())
+    
+    const paymentValid = paymentForm.payment_method === 'cod' || 
+                        (paymentForm.phone_number_payment && paymentForm.transaction_id)
+    
+    return shippingValid && paymentValid && agreeToTerms && cartItems.length > 0
+  }
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -150,16 +152,6 @@ const CheckoutContent = () => {
     if (checked) {
       setBillingForm(shippingForm)
     }
-  }
-
-  // Validate form
-  const isFormValid = () => {
-    const requiredShippingFields = ['first_name', 'last_name', 'email', 'phone', 'address', 'city']
-    const shippingValid = requiredShippingFields.every(field => shippingForm[field].trim())
-    
-    const billingValid = useSameAddress || requiredShippingFields.every(field => billingForm[field].trim())
-    
-    return shippingValid && billingValid && agreeToTerms && cartItems.length > 0
   }
 
   // Handle order placement

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const API_URL = 'http://127.0.0.1:8000';
 
@@ -10,6 +11,20 @@ const apiClient = axios.create({
         'Content-Type': 'application/json',
     }
 });
+
+// Add request interceptor to include auth token
+apiClient.interceptors.request.use(
+    (config) => {
+        const token = Cookies.get('accessToken');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
 // Add response interceptor for better error handling
 apiClient.interceptors.response.use(
@@ -225,3 +240,133 @@ export const makeAuthenticatedRequest = async (requestFunc, getValidAccessToken)
         throw error
     }
 }
+
+// Categories API
+export const getCategoriesApi = {
+    // Get all categories
+    getAll: async () => {
+        try {
+            const response = await apiClient.get('/shop/categories/');
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            throw error;
+        }
+    },
+
+    // Get featured categories
+    getFeatured: async () => {
+        try {
+            const response = await apiClient.get('/shop/categories/featured/');
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching featured categories:', error);
+            throw error;
+        }
+    },
+
+    // Get products by category
+    getProductsByCategory: async (categorySlug) => {
+        try {
+            const response = await apiClient.get(`/shop/categories/${categorySlug}/products/`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching category products:', error);
+            throw error;
+        }
+    }
+};
+
+// Orders API
+export const ordersApi = {
+    // Get user orders
+    getUserOrders: async () => {
+        try {
+            const response = await apiClient.get('/shop/orders/');
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching user orders:', error);
+            throw error;
+        }
+    },
+
+    // Create new order
+    createOrder: async (orderData) => {
+        try {
+            const response = await apiClient.post('/shop/orders/', orderData);
+            return response.data;
+        } catch (error) {
+            console.error('Error creating order:', error);
+            throw error;
+        }
+    },
+
+    // Get order by ID
+    getOrderById: async (orderId) => {
+        try {
+            const response = await apiClient.get(`/shop/orders/${orderId}/`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching order:', error);
+            throw error;
+        }
+    }
+};
+
+// Products API Enhancement
+export const productsApi = {
+    // Get all products with pagination
+    getAll: async (page = 1, pageSize = 12) => {
+        try {
+            const response = await apiClient.get(`/shop/products/?page=${page}&page_size=${pageSize}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            throw error;
+        }
+    },
+
+    // Search products
+    search: async (query, page = 1) => {
+        try {
+            const response = await apiClient.get(`/shop/products/?search=${encodeURIComponent(query)}&page=${page}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error searching products:', error);
+            throw error;
+        }
+    },
+
+    // Get product reviews
+    getReviews: async (productId) => {
+        try {
+            const response = await apiClient.get(`/shop/products/${productId}/reviews/`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching product reviews:', error);
+            throw error;
+        }
+    },
+
+    // Add product review
+    addReview: async (productId, reviewData) => {
+        try {
+            const response = await apiClient.post(`/shop/products/${productId}/reviews/`, reviewData);
+            return response.data;
+        } catch (error) {
+            console.error('Error adding product review:', error);
+            throw error;
+        }
+    }
+};
+
+// Districts API (for shipping addresses)
+export const getDistricts = async () => {
+    try {
+        const response = await apiClient.get('/shop/districts/');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching districts:', error);
+        throw error;
+    }
+};

@@ -2,11 +2,13 @@
 
 import React from 'react'
 import { useLoading } from '@/hooks/useLoading'
+import { useInstantNavigation } from '@/hooks/usePageTransition'
 import LoadingSpinner from './LoadingSpinner'
 import Image from 'next/image'
 
 const ProductsCard = ({ 
     product = {
+        id: null,
         thumbnail: "https://dummyimage.com/428x268",
         category: "CATEGORY",
         title: "The 400 Blows",
@@ -17,6 +19,16 @@ const ProductsCard = ({
     className = ""
 }) => {
     const { isLoading: imageLoading, setIsLoading } = useLoading(true)
+    const { navigateTo } = useInstantNavigation()
+
+    // Handle product click navigation
+    const handleProductClick = () => {
+        if (onClick) {
+            onClick(product)
+        } else if (product.id) {
+            navigateTo(`/Products/${product.id}`)
+        }
+    }
 
     const handleImageLoad = () => {
         setIsLoading(false)
@@ -59,10 +71,11 @@ const ProductsCard = ({
 
     return (
         <div className={`lg:w-1/4 md:w-1/2 p-4 w-full ${className}`}>
-            <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:border-primary/50">
-                <div className="block relative  overflow-hidden cursor-pointer hover:opacity-90 transition-opacity" 
-                    onClick={onClick}
-                >
+            <div 
+                className="bg-card border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:border-primary/50 cursor-pointer group"
+                onClick={handleProductClick}
+            >
+                <div className="block relative overflow-hidden">
                     {imageLoading && (
                         <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
                             <LoadingSpinner size="medium" />
@@ -74,7 +87,7 @@ const ProductsCard = ({
                         width={428}
                         height={268}
                         alt={product.title || "ecommerce product"}
-                        className="w-full h-auto object-cover"
+                        className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-200"
                         onLoad={handleImageLoad}
                         onError={handleImageError}
                         priority={false}
@@ -85,7 +98,7 @@ const ProductsCard = ({
                     <h3 className="text-muted-foreground text-xs tracking-widest title-font mb-1 uppercase">
                         {product.category}
                     </h3>
-                    <h2 className="text-foreground title-font text-lg font-medium hover:text-primary transition-colors cursor-pointer">
+                    <h2 className="text-foreground title-font text-lg font-medium group-hover:text-primary transition-colors">
                         {product.title}
                     </h2>
                     <p className="mt-1 text-primary font-semibold">
