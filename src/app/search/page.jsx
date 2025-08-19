@@ -1,6 +1,5 @@
-import React, { Suspense } from 'react'
+import React from 'react'
 import ProductsCard from '@/components/ProductsCard'
-import SearchPageSkeleton from '@/components/SearchPageSkeleton'
 
 const SearchContent = () => {
     const productArray = Array.from({ length: 10 }, (_, index) => index + 1);
@@ -23,11 +22,7 @@ const SearchContent = () => {
 }
 
 const page = () => {
-    return (
-        <Suspense fallback={<SearchPageSkeleton />}>
-            <SearchContent />
-        </Suspense>
-    )
+    return <SearchContent />
 }
 
 export default page

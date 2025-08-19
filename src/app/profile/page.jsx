@@ -49,10 +49,9 @@ const ProfilePage = () => {
 
   React.useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      navigateTo('/signin')
-      return
+      // Don't immediately redirect, show sign-in prompt instead
     }
-  }, [isAuthenticated, isLoading, navigateTo])
+  }, [isAuthenticated, isLoading])
 
   React.useEffect(() => {
     if (userProfile && !isEditing && !isProfileLoaded) {
@@ -169,9 +168,29 @@ const ProfilePage = () => {
   if (!isAuthenticated) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Please Sign In</h1>
-          <p className="text-muted-foreground">You need to be signed in to view your profile.</p>
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-6">
+            <svg className="w-12 h-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <h1 className="text-3xl font-bold mb-4">Sign In Required</h1>
+          <p className="text-muted-foreground mb-6">
+            Please sign in to your account to view your profile.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button onClick={() => navigateTo('/signin?redirect=/profile')} size="lg">
+              Sign In
+            </Button>
+            <Button variant="outline" onClick={() => navigateTo('/signup')} size="lg">
+              Create Account
+            </Button>
+          </div>
+          <div className="mt-8">
+            <Button variant="ghost" onClick={() => navigateTo('/')}>
+              ← Back to Home
+            </Button>
+          </div>
         </div>
       </div>
     )
@@ -183,14 +202,7 @@ const ProfilePage = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">My Profile</h1>
-          {!isEditing ? (
-            <Button onClick={() => setIsEditing(true)}>
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              Edit Profile
-            </Button>
-          ) : (
+          {isEditing && (
             <div className="flex gap-2">
               <Button variant="outline" onClick={handleCancel}>
                 Cancel
@@ -281,131 +293,202 @@ const ProfilePage = () => {
 
           {/* Personal Information */}
           <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="first_name">First Name</Label>
-                  {isEditing ? (
-                    <Input
-                      id="first_name"
-                      name="first_name"
-                      value={formData.first_name}
-                      onChange={handleInputChange}
-                      placeholder="Enter your first name"
-                    />
-                  ) : (
-                    <div className="p-2 bg-muted/50 rounded">
-                      {userProfile?.first_name || 'Not provided'}
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="last_name">Last Name</Label>
-                  {isEditing ? (
-                    <Input
-                      id="last_name"
-                      name="last_name"
-                      value={formData.last_name}
-                      onChange={handleInputChange}
-                      placeholder="Enter your last name"
-                    />
-                  ) : (
-                    <div className="p-2 bg-muted/50 rounded">
-                      {userProfile?.last_name || 'Not provided'}
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone_number">Phone Number</Label>
-                  {isEditing ? (
-                    <Input
-                      id="phone_number"
-                      name="phone_number"
-                      value={formData.phone_number}
-                      onChange={handleInputChange}
-                      placeholder="Enter your phone number"
-                    />
-                  ) : (
-                    <div className="p-2 bg-muted/50 rounded">
-                      {userProfile?.phone_number || 'Not provided'}
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="district">District</Label>
-                  {isEditing ? (
-                    <Input
-                      id="district"
-                      name="district"
-                      value={formData.district}
-                      onChange={handleInputChange}
-                      placeholder="Enter your district"
-                    />
-                  ) : (
-                    <div className="p-2 bg-muted/50 rounded">
-                      {userProfile?.district || 'Not provided'}
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="upozila">Upozila</Label>
-                  {isEditing ? (
-                    <Input
-                      id="upozila"
-                      name="upozila"
-                      value={formData.upozila}
-                      onChange={handleInputChange}
-                      placeholder="Enter your upozila"
-                    />
-                  ) : (
-                    <div className="p-2 bg-muted/50 rounded">
-                      {userProfile?.upozila || 'Not provided'}
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="city">City</Label>
-                  {isEditing ? (
-                    <Input
-                      id="city"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      placeholder="Enter your city"
-                    />
-                  ) : (
-                    <div className="p-2 bg-muted/50 rounded">
-                      {userProfile?.city || 'Not provided'}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                {isEditing ? (
-                  <Textarea
-                    id="address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    placeholder="Enter your full address"
-                    rows={3}
-                  />
-                ) : (
-                  <div className="p-2 bg-muted/50 rounded min-h-[80px]">
-                    {userProfile?.address || 'Not provided'}
-                  </div>
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl">Personal Information</CardTitle>
+                {!isEditing && (
+                  <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit
+                  </Button>
                 )}
               </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Name Section */}
+              <div className="space-y-4">
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-medium text-muted-foreground">Name</Label>
+                      {!isEditing && (
+                        <span className="text-sm text-muted-foreground">
+                          {profileDisplayData?.email}
+                        </span>
+                      )}
+                    </div>
+                    {isEditing ? (
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <Input
+                          name="first_name"
+                          value={formData.first_name}
+                          onChange={handleInputChange}
+                          placeholder="First name"
+                          className="h-10"
+                        />
+                        <Input
+                          name="last_name"
+                          value={formData.last_name}
+                          onChange={handleInputChange}
+                          placeholder="Last name"
+                          className="h-10"
+                        />
+                      </div>
+                    ) : (
+                      <div className="text-base font-medium">
+                        {profileDisplayData?.displayName || 'Not provided'}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-muted-foreground">Email account</Label>
+                    <div className="text-base">
+                      {profileDisplayData?.email || 'Not provided'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Contact Information */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-semibold text-foreground">Contact Information</h4>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-muted-foreground">Mobile number</Label>
+                    {isEditing ? (
+                      <Input
+                        name="phone_number"
+                        value={formData.phone_number}
+                        onChange={handleInputChange}
+                        placeholder="Add number"
+                        className="h-10"
+                      />
+                    ) : (
+                      <div className="text-base">
+                        {userProfile?.phone_number || (
+                          <span className="text-muted-foreground">Add number</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-muted-foreground">Location</Label>
+                    {isEditing ? (
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <Input
+                          name="city"
+                          value={formData.city}
+                          onChange={handleInputChange}
+                          placeholder="City"
+                          className="h-10"
+                        />
+                        <Input
+                          name="district"
+                          value={formData.district}
+                          onChange={handleInputChange}
+                          placeholder="District"
+                          className="h-10"
+                        />
+                      </div>
+                    ) : (
+                      <div className="text-base">
+                        {userProfile?.city && userProfile?.district 
+                          ? `${userProfile.city}, ${userProfile.district}` 
+                          : userProfile?.city || userProfile?.district || (
+                            <span className="text-muted-foreground">Add location</span>
+                          )
+                        }
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Address Information */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-semibold text-foreground">Address Details</h4>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-muted-foreground">Upozila</Label>
+                    {isEditing ? (
+                      <Input
+                        name="upozila"
+                        value={formData.upozila}
+                        onChange={handleInputChange}
+                        placeholder="Enter upozila"
+                        className="h-10"
+                      />
+                    ) : (
+                      <div className="text-base">
+                        {userProfile?.upozila || (
+                          <span className="text-muted-foreground">Not provided</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <Label className="text-sm font-medium text-muted-foreground">Full Address</Label>
+                    {isEditing ? (
+                      <Textarea
+                        name="address"
+                        value={formData.address}
+                        onChange={handleInputChange}
+                        placeholder="Enter your full address"
+                        rows={3}
+                        className="resize-none"
+                      />
+                    ) : (
+                      <div className="text-base min-h-[60px] p-3 rounded-md border bg-muted/30">
+                        {userProfile?.address || (
+                          <span className="text-muted-foreground">Not provided</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons for Editing */}
+              {isEditing && (
+                <>
+                  <Separator />
+                  <div className="flex justify-end gap-3 pt-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={handleCancel}
+                      disabled={isSaving}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      onClick={handleSave} 
+                      disabled={isSaving}
+                      className="px-6"
+                    >
+                      {isSaving ? (
+                        <div className="flex items-center">
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Saving...
+                        </div>
+                      ) : (
+                        'Save Changes'
+                      )}
+                    </Button>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>

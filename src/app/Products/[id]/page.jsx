@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from 'react';
+import React, { useState } from 'react';
 import { FaStar } from 'react-icons/fa';
 import { FaPlus } from "react-icons/fa6";
 import { FaMinus } from "react-icons/fa6";
@@ -254,11 +254,7 @@ const ProductDetailsCard = () => {
 };
 
 const ProductDetailsPage = () => {
-    return (
-        <Suspense fallback={<ProductDetailSkeleton />}>
-            <ProductDetailsCard />
-        </Suspense>
-    );
+    return <ProductDetailsCard />
 };
 
 export default ProductDetailsPage;

@@ -3,22 +3,31 @@ import { Skeleton } from './ui/skeleton'
 
 const HeroSectionSkeleton = () => {
     return (
-        <section className="text-gray-600 body-font">
-            <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
-                <div className="lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center">
-                    <Skeleton className="h-8 w-80 mb-4" />
-                    <Skeleton className="h-6 w-96 mb-2" />
-                    <Skeleton className="h-4 w-72 mb-8" />
-                    <div className="flex justify-center">
+        <div className="overflow-hidden relative w-full">
+            {/* Main slide skeleton */}
+            <div className="flex flex-col-reverse md:flex-row items-center justify-between bg-muted py-8 md:px-14 px-5 mt-6 rounded-xl min-w-full">
+                {/* Content section */}
+                <div className="md:pl-8 mt-10 md:mt-0">
+                    <Skeleton className="h-4 w-48 mb-2" />
+                    <Skeleton className="h-12 w-96 mb-6" />
+                    <div className="flex items-center gap-4">
+                        <Skeleton className="h-10 w-28 rounded-full" />
                         <Skeleton className="h-10 w-32 rounded" />
-                        <Skeleton className="ml-4 h-10 w-32 rounded" />
                     </div>
                 </div>
-                <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6">
-                    <Skeleton className="object-cover object-center rounded w-full h-80" />
+                {/* Image section */}
+                <div className="flex items-center flex-1 justify-center">
+                    <Skeleton className="md:w-72 w-48 h-40 rounded" />
                 </div>
             </div>
-        </section>
+
+            {/* Carousel dots skeleton */}
+            <div className="flex items-center justify-center gap-2 mt-8">
+                {Array.from({ length: 3 }, (_, index) => (
+                    <Skeleton key={index} className="h-2 w-2 rounded-full" />
+                ))}
+            </div>
+        </div>
     )
 }
 

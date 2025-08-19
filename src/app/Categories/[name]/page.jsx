@@ -1,6 +1,5 @@
-import React, { Suspense } from 'react'
+import React from 'react'
 import ProductsCard from '@/components/ProductsCard'
-import ProductGridSkeleton from '@/components/ProductGridSkeleton'
 
 const CategoryContent = () => {
     const productArray = Array.from({ length: 20 }, (_, index) => index + 1);
@@ -21,11 +20,7 @@ const CategoryContent = () => {
 }
 
 const page = () => {
-    return (
-        <Suspense fallback={<ProductGridSkeleton count={20} />}>
-            <CategoryContent />
-        </Suspense>
-    )
+    return <CategoryContent />
 }
 
 export default page

@@ -5,7 +5,8 @@ import Image from "next/image";
 import ProductsCard from "@/components/ProductsCard";
 import InstantPageWrapper from "@/components/InstantPageWrapper";
 import HeroSectionSkeleton from "@/components/HeroSectionSkeleton";
-import ProductGridSkeleton from "@/components/ProductGridSkeleton";
+import HeaderSliderSkeleton from "@/components/HeaderSliderSkeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import Alert from "@/components/Alert";
 import HeaderSlider from "@/components/HeaderSlider";
 import { getTopSellingProducts, getTopCategories, postGetInTouch } from "@/lib/api";
@@ -125,9 +126,47 @@ export default function HomePageClient({
   };
 
   const HomePageSkeleton = () => (
-    <div className="ml-[50px] mr-[50px]">
-      <HeroSectionSkeleton />
-      <ProductGridSkeleton count={10} />
+    <div>
+      <HeaderSliderSkeleton />
+      
+      {/* Categories section skeleton */}
+      <div className="ml-[50px] mr-[50px] mt-10">
+        <div className="mb-8">
+          <Skeleton className="h-8 w-48 mx-auto mb-4" />
+          <Skeleton className="h-4 w-96 mx-auto" />
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mb-10">
+          {Array.from({ length: 10 }, (_, index) => (
+            <div key={index} className="bg-card border border-border p-4 rounded-lg shadow-md">
+              <Skeleton className="h-6 w-full mb-2" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Hero Section skeleton */}
+      <div className="ml-[50px] mr-[50px]">
+        <HeroSectionSkeleton />
+      </div>
+      
+      {/* Products section skeleton */}
+      <div className="ml-[50px] mr-[50px]">
+        <div className="text-center mt-10 mb-8">
+          <Skeleton className="h-8 w-64 mx-auto mb-4" />
+          <Skeleton className="h-4 w-96 mx-auto" />
+        </div>
+        {/* Individual product card skeletons will be handled by the component itself */}
+        <section className="text-muted-foreground">
+          <div className="container px-5 py-24 mx-auto">
+            <div className="flex flex-wrap -m-4">
+              {Array.from({ length: 8 }, (_, index) => (
+                <ProductsCard key={`page-skeleton-${index}`} isLoading={true} />
+              ))}
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   );
 

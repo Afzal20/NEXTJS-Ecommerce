@@ -1,11 +1,10 @@
-"use client";
+"use client"
 
-import React, { useId, Suspense, useState, useEffect } from 'react'
+import React, { useId, useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import PasswordCheck from "@/components/PasswordCheck"
-import SignupPageSkeleton from "@/components/SignupPageSkeleton"
 import { useRegister } from '@/lib/api';
 
 const SignUpContent = () => {
@@ -114,9 +113,5 @@ const SignUpContent = () => {
 }
 
 export default function SignUpPage() {
-    return (
-        <Suspense fallback={<SignupPageSkeleton />}>
-            <SignUpContent />
-        </Suspense>
-    )
+    return <SignUpContent />
 }
