@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { FaStar } from 'react-icons/fa';
 import { FaPlus } from "react-icons/fa6";
 import { FaMinus } from "react-icons/fa6";
@@ -18,6 +18,7 @@ import { useToast } from '@/components/Toast';
 
 const ProductDetailsCard = () => {
     const params = useParams();
+    const router = useRouter();
     const { isAuthenticated } = useAuth();
     const { addToCart, addToLocalCart, isLoading: cartLoading } = useCartStore();
     const { toast } = useToast();
@@ -30,6 +31,9 @@ const ProductDetailsCard = () => {
     const [activeTab, setActiveTab] = useState('description');
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [relatedLoading, setRelatedLoading] = useState(false);
+    const [selectedColor, setSelectedColor] = useState(null);
+    const [selectedSize, setSelectedSize] = useState(null);
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
 
     useEffect(() => {
         if (params.id) {
@@ -40,6 +44,9 @@ const ProductDetailsCard = () => {
     useEffect(() => {
         if (product) {
             fetchRelatedProducts();
+            // Reset selections when product changes
+            setSelectedColor(null);
+            setSelectedSize(null);
         }
     }, [product]);
 
@@ -121,17 +128,49 @@ const ProductDetailsCard = () => {
     const handleAddToCart = async () => {
         if (!product) return;
 
+        // Check if color selection is required
+        const hasColors = (product.colors && product.colors.length > 0) || (product.color && product.color.length > 0);
+        const hasSizes = (product.sizes && product.sizes.length > 0) || (product.size && product.size.length > 0);
+        
+        // Validate required selections
+        if (hasColors && !selectedColor) {
+            toast.error('Please select a color');
+            return;
+        }
+        
+        if (hasSizes && !selectedSize) {
+            toast.error('Please select a size');
+            return;
+        }
+
+        // Prepare product data with selections
+        const productWithSelections = {
+            ...product,
+            selectedColor: selectedColor,
+            selectedSize: selectedSize,
+            quantity: quantity
+        };
+
+        setIsAddingToCart(true);
+        
         try {
             if (isAuthenticated) {
-                await addToCart(product, quantity);
-                toast.success('Product added to cart!');
+                await addToCart(productWithSelections, quantity);
+                toast.success('🎉 Product added to cart successfully! Redirecting to cart...');
             } else {
-                addToLocalCart(product, quantity);
-                toast.success('Product added to cart!');
+                addToLocalCart(productWithSelections, quantity);
+                toast.success('🎉 Product added to cart successfully! Redirecting to cart...');
             }
+            
+            // Navigate to cart page after successful addition
+            setTimeout(() => {
+                router.push('/cart');
+            }, 1500); // 1.5 second delay to show the success message
+            
         } catch (error) {
-            toast.error('Failed to add product to cart');
+            toast.error('❌ Failed to add product to cart. Please try again.');
             console.error('Add to cart error:', error);
+            setIsAddingToCart(false);
         }
     };
 
@@ -292,32 +331,50 @@ const ProductDetailsCard = () => {
                         {/* Colors - Only show if product has colors */}
                         {(product.colors && product.colors.length > 0) || (product.color && product.color.length > 0) ? (
                             <div className="flex flex-col gap-5">
-                                <h4 className='text-xl text-foreground font-archivo font-bold'>color:</h4>
+                                <h4 className='text-xl text-foreground font-archivo font-bold'>
+                                    color: {selectedColor && <span className="text-sm text-muted-foreground ml-2">({selectedColor.name || selectedColor})</span>}
+                                </h4>
                                 <div className="flex gap-3">
-                                    {(product.colors || product.color || []).map((color, index) => (
-                                        <span 
-                                            key={index} 
-                                            className='w-[32px] h-[32px] rounded-full border-[4px] border-border cursor-pointer hover:border-primary transition-colors'
-                                            style={{ backgroundColor: color.value || color.hex || color }}
-                                            title={color.name || color}
-                                        ></span>
-                                    ))}
+                                    {(product.colors || product.color || []).map((color, index) => {
+                                        const isSelected = selectedColor === color || selectedColor === (color.name || color);
+                                        return (
+                                            <span 
+                                                key={index} 
+                                                onClick={() => setSelectedColor(color)}
+                                                className={`w-[32px] h-[32px] rounded-full border-[4px] cursor-pointer hover:border-primary transition-colors ${
+                                                    isSelected ? 'border-primary ring-2 ring-primary/30' : 'border-border'
+                                                }`}
+                                                style={{ backgroundColor: color.value || color.hex || color }}
+                                                title={color.name || color}
+                                            ></span>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         ) : null}
                         {/* Sizes - Only show if product has sizes */}
                         {(product.sizes && product.sizes.length > 0) || (product.size && product.size.length > 0) ? (
                             <div className="flex flex-col gap-5 pb-8 border-b-2 border-border">
-                               <h4 className='text-xl text-foreground font-archivo font-bold'>size:</h4>
+                               <h4 className='text-xl text-foreground font-archivo font-bold'>
+                                   size: {selectedSize && <span className="text-sm text-muted-foreground ml-2">({selectedSize.name || selectedSize})</span>}
+                               </h4>
                                 <div className="flex gap-3">
-                                    {(product.sizes || product.size || []).map((size, index) => (
-                                        <button 
-                                            key={index}
-                                            className='w-[43px] h-[43px] rounded-full bg-none border-2 border-border flex items-center justify-center text-lg text-foreground font-archivo font-normal capitalize hover:border-primary transition-colors'
-                                        >
-                                            {size.name || size.value || size}
-                                        </button>
-                                    ))}
+                                    {(product.sizes || product.size || []).map((size, index) => {
+                                        const isSelected = selectedSize === size || selectedSize === (size.name || size.value || size);
+                                        return (
+                                            <button 
+                                                key={index}
+                                                onClick={() => setSelectedSize(size)}
+                                                className={`w-[43px] h-[43px] rounded-full border-2 flex items-center justify-center text-lg text-foreground font-archivo font-normal capitalize transition-colors ${
+                                                    isSelected 
+                                                        ? 'border-primary bg-primary text-primary-foreground' 
+                                                        : 'border-border hover:border-primary'
+                                                }`}
+                                            >
+                                                {size.name || size.value || size}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         ) : null}
@@ -339,10 +396,21 @@ const ProductDetailsCard = () => {
                             <button
                                 type='button'
                                 onClick={handleAddToCart}
-                                disabled={cartLoading}
+                                disabled={cartLoading || isAddingToCart}
                                 className='w-full sm:w-auto px-8 h-14 rounded-full bg-primary hover:bg-primary/90 text-lg text-primary-foreground font-archivo font-semibold capitalize cursor-pointer flex justify-center items-center gap-3 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
                             >
-                                {cartLoading ? 'Adding...' : 'add to cart'} <GoArrowRight size={'1.2rem'} />
+                                {isAddingToCart ? (
+                                    <>
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground"></div>
+                                        Adding to Cart...
+                                    </>
+                                ) : cartLoading ? (
+                                    'Adding...'
+                                ) : (
+                                    <>
+                                        add to cart <GoArrowRight size={'1.2rem'} />
+                                    </>
+                                )}
                             </button>
                         </div>
 
