@@ -19,71 +19,61 @@ const buildImageSrc = (imagePath) => {
 const HeroSection = () => {
   const [slides, setSlides] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+ useEffect(() => {
+  let ignore = false;
+
+  const fetchSlides = async () => {
+    try {
+      const data = await getHeroSections();
+      if (!Array.isArray(data) || ignore) return;
+
+      // Only transform what is needed
+      const mapped = data.map((item, idx) => ({
+        id: item.id || idx, // keep idx only if id missing
+        title: item.title || "",
+        offer: item.offer || "",
+        buttonText1: item.button_1_Text || "",
+        buttonText2: item.button_2_Text || "",
+        imgSrc: buildImageSrc(item.image),
+      }));
+
+      setSlides(mapped);
+    } catch (e) {
+      // TODO: optional fallback
+    }
+  };
+
+  fetchSlides();
+
+  return () => {
+    ignore = true;
+  };
+}, []);
+
 
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const data = await getHeroSections();
-        // Map API fields to UI shape; serializer returns: id, title, offer, button_1_Text, button_2_Text, image
-        const mapped = (Array.isArray(data) ? data : []).map((item, idx) => ({
-          id: item.id ?? idx,
-          title: item.title ?? "",
-          offer: item.offer ?? "",
-          buttonText1: item.button_1_Text ?? "",
-          buttonText2: item.button_2_Text ?? "",
-          imgSrc: buildImageSrc(item.image),
-        }));
-        if (mounted) setSlides(mapped);
-      } catch (e) {
-        // Fallback to static assets if API fails or returns empty
-        if (mounted) {
-          setSlides([
-            {
-              id: 1,
-              title: "Experience Pure Sound - Your Perfect Headphones Awaits!",
-              offer: "Limited Time Offer 30% Off",
-              buttonText1: "Buy now",
-              buttonText2: "Find more",
-              imgSrc: assets.header_headphone_image,
-            },
-            {
-              id: 2,
-              title: "Next-Level Gaming Starts Here - Discover PlayStation 5 Today!",
-              offer: "Hurry up only few lefts!",
-              buttonText1: "Shop Now",
-              buttonText2: "Explore Deals",
-              imgSrc: assets.header_playstation_image,
-            },
-            {
-              id: 3,
-              title: "Power Meets Elegance - Apple MacBook Pro is Here for you!",
-              offer: "Exclusive Deal 40% Off",
-              buttonText1: "Order Now",
-              buttonText2: "Learn More",
-              imgSrc: assets.header_macbook_image,
-            },
-          ]);
-        }
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!slides.length) return;
+    if (!slides.length || isPaused) return;
+    
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 3000);
+    
     return () => clearInterval(interval);
-  }, [slides.length]);
+  }, [slides.length, isPaused]);
 
   const handleSlideChange = (index) => setCurrentSlide(index);
 
+  const handleMouseEnter = () => setIsPaused(true);
+  const handleMouseLeave = () => setIsPaused(false);
+
   return (
-    <div className="overflow-hidden relative w-full">
+    <div 
+      className="overflow-hidden relative w-full"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <div
         className="flex transition-transform duration-700 ease-in-out"
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
@@ -119,17 +109,16 @@ const HeroSection = () => {
         ))}
       </div>
 
-      <div className="flex items-center justify-center gap-2 mt-8">
+      {/* <div className="items-center justify-center gap-2 mt-8 hidden">
         {(slides.length ? slides : []).map((_, index) => (
           <div
             key={index}
             onClick={() => handleSlideChange(index)}
-            className={`h-2 w-2 rounded-full cursor-pointer ${
-              currentSlide === index ? "bg-primary" : "bg-muted-foreground/30"
+            className={` ${currentSlide === index ? "bg-primary" : "bg-muted-foreground/30"
             }`}
           />
         ))}
-      </div>
+      </div> */}
     </div>
   );
 };

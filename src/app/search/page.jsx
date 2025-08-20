@@ -19,7 +19,7 @@ const SearchContent = () => {
                                     thumbnail: "https://dummyimage.com/428x268",
                                     category: "Search Result",
                                     title: `Search Result ${index + 1}`,
-                                    price: (Math.random() * 200 + 10).toFixed(2)
+                                    price: ((index * 23 + 47) % 200 + 10).toFixed(2) // deterministic price based on index
                                 }}
                             />
                         ))}

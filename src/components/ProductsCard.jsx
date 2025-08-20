@@ -2,11 +2,11 @@
 
 import React from 'react'
 import { useLoading } from '@/hooks/useLoading'
-import { useInstantNavigation } from '@/hooks/usePageTransition'
 import LoadingSpinner from './LoadingSpinner'
 import Image from 'next/image'
+import Link from 'next/link'
 
-const ProductsCard = ({ 
+const ProductsCard = ({
     product = {
         id: null,
         thumbnail: "https://dummyimage.com/428x268",
@@ -15,20 +15,9 @@ const ProductsCard = ({
         price: "18.40"
     },
     isLoading = false,
-    onClick,
     className = ""
 }) => {
     const { isLoading: imageLoading, setIsLoading } = useLoading(true)
-    const { navigateTo } = useInstantNavigation()
-
-    // Handle product click navigation
-    const handleProductClick = () => {
-        if (onClick) {
-            onClick(product)
-        } else if (product.id) {
-            navigateTo(`/Products/${product.id}`)
-        }
-    }
 
     const handleImageLoad = () => {
         setIsLoading(false)
@@ -71,54 +60,53 @@ const ProductsCard = ({
 
     return (
         <div className={`lg:w-1/4 md:w-1/2 p-4 w-full ${className}`}>
-            <div 
-                className="bg-card border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:border-primary/50 cursor-pointer group"
-                onClick={handleProductClick}
-            >
-                <div className="block relative overflow-hidden">
-                    {imageLoading && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                            <LoadingSpinner size="medium" />
-                        </div>
-                    )}
+            <Link href={`/Products/${product.id}`}>
+                <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:border-primary/50 cursor-pointer group">
+                    <div className="block relative overflow-hidden">
+                        {imageLoading && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                                <LoadingSpinner size="medium" />
+                            </div>
+                        )}
 
-                    <Image
-                        src={getProductImage()}
-                        width={428}
-                        height={268}
-                        alt={product.title || "ecommerce product"}
-                        className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-200"
-                        onLoad={handleImageLoad}
-                        onError={handleImageError}
-                        priority={false}
-                    /> 
-                    
-                </div>
-                <div className="p-4">
-                    <h3 className="text-muted-foreground text-xs tracking-widest title-font mb-1 uppercase">
-                        {product.category}
-                    </h3>
-                    <h2 className="text-foreground title-font text-lg font-medium group-hover:text-primary transition-colors">
-                        {product.title}
-                    </h2>
-                    <p className="mt-1 text-primary font-semibold">
-                        {formatPrice(product.price)}
-                    </p>
-                    {product.discount_percentage > 0 && (
-                        <p className="text-sm text-green-600">
-                            {product.discount_percentage}% off
+                        <Image
+                            src={getProductImage()}
+                            width={428}
+                            height={268}
+                            alt={product.title || "ecommerce product"}
+                            className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-200"
+                            onLoad={handleImageLoad}
+                            onError={handleImageError}
+                            priority={false}
+                        />
+
+                    </div>
+                    <div className="p-4">
+                        <h3 className="text-muted-foreground text-xs tracking-widest title-font mb-1 uppercase">
+                            {product.category}
+                        </h3>
+                        <h2 className="text-foreground title-font text-lg font-medium group-hover:text-primary transition-colors">
+                            {product.title}
+                        </h2>
+                        <p className="mt-1 text-primary font-semibold">
+                            {formatPrice(product.price)}
                         </p>
-                    )}
-                    {product.rating && (
-                        <div className="flex items-center mt-1">
-                            <span className="text-yellow-500">★</span>
-                            <span className="text-sm text-muted-foreground ml-1">
-                                {product.rating}
-                            </span>
-                        </div>
-                    )}
+                        {product.discount_percentage > 0 && (
+                            <p className="text-sm text-green-600">
+                                {product.discount_percentage}% off
+                            </p>
+                        )}
+                        {product.rating && (
+                            <div className="flex items-center mt-1">
+                                <span className="text-yellow-500">★</span>
+                                <span className="text-sm text-muted-foreground ml-1">
+                                    {product.rating}
+                                </span>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
+            </Link>
         </div>
     )
 }

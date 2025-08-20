@@ -11,8 +11,16 @@ const InstantPageWrapper = ({
 }) => {
     const { isLoading } = usePageTransition()
     const [showSkeleton, setShowSkeleton] = useState(false)
+    const [isMounted, setIsMounted] = useState(false)
+
+    // Ensure we're on the client side to avoid hydration mismatch
+    useEffect(() => {
+        setIsMounted(true)
+    }, [])
 
     useEffect(() => {
+        if (!isMounted) return // Don't show skeleton during SSR
+        
         if (isLoading) {
             // Show skeleton after a small delay to avoid flash
             const timer = setTimeout(() => {
@@ -23,7 +31,16 @@ const InstantPageWrapper = ({
         } else {
             setShowSkeleton(false)
         }
-    }, [isLoading, loadingDelay])
+    }, [isLoading, loadingDelay, isMounted])
+
+    // Always show children during SSR and initial client render
+    if (!isMounted) {
+        return (
+            <div className={className}>
+                {children}
+            </div>
+        )
+    }
 
     return (
         <div className={className}>

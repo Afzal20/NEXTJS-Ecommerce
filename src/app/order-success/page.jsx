@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useInstantNavigation } from '@/hooks/usePageTransition'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -9,11 +9,17 @@ import { Separator } from '@/components/ui/separator'
 
 const OrderSuccessPage = () => {
   const { navigateTo } = useInstantNavigation()
+  const [orderDate, setOrderDate] = useState('')
+  
+  // Initialize date on client side to avoid hydration mismatch
+  useEffect(() => {
+    setOrderDate(new Date().toLocaleDateString())
+  }, [])
   
   // Dummy order data - in real app this would come from URL params or API
   const orderData = {
     id: 'ORD-2024-001',
-    date: new Date().toLocaleDateString(),
+    date: orderDate,
     status: 'confirmed',
     total: 28997,
     items: [

@@ -17,7 +17,7 @@ const CategoryContent = () => {
                                     thumbnail: "https://dummyimage.com/428x268",
                                     category: "Category Product",
                                     title: `Category Product ${index + 1}`,
-                                    price: (Math.random() * 150 + 25).toFixed(2)
+                                    price: ((index * 17 + 33) % 150 + 25).toFixed(2) // deterministic price based on index
                                 }}
                             />
                         ))}

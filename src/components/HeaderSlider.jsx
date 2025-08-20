@@ -55,7 +55,6 @@ const HeaderSlider = () => {
         ))}
       </div>
 
-      {/* Dot indicators */}
       <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-2">
         {slides.map((_, index) => (
           <button
@@ -67,6 +66,7 @@ const HeaderSlider = () => {
           />
         ))}
       </div>
+     
     </div>
   );
 };

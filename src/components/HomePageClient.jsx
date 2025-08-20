@@ -33,15 +33,17 @@ export default function HomePageClient({
   const [contactStatus, setContactStatus] = useState(null); // 'success', 'error', or null
 
   useEffect(() => {
-    // Check if user just logged in
-    const loginSuccess = localStorage.getItem('loginSuccess');
-    if (loginSuccess === 'true') {
-      setShowLoginAlert(true);
-      // Remove the flag so it doesn't show again
-      localStorage.removeItem('loginSuccess');
+    // Check if user just logged in - only run on client side
+    if (typeof window !== 'undefined') {
+      const loginSuccess = localStorage.getItem('loginSuccess');
+      if (loginSuccess === 'true') {
+        setShowLoginAlert(true);
+        // Remove the flag so it doesn't show again
+        localStorage.removeItem('loginSuccess');
 
-      // Hide alert after 5 seconds
-      setTimeout(() => setShowLoginAlert(false), 5000);
+        // Hide alert after 5 seconds
+        setTimeout(() => setShowLoginAlert(false), 5000);
+      }
     }
   }, []);
 

@@ -55,18 +55,8 @@ const ProductsList = () => {
             renderItem={(product, index) => (
                 <ProductsCard 
                     key={product.id} 
-                    product={{
-                        id: product.id,
-                        thumbnail: product.product_thumbnail,
-                        category: product.product_category,
-                        title: product.product_title || product.name,
-                        price: product.product_price || product.price,
-                        discount_percentage: product.discount_percentage,
-                        rating: product.product_rating || product.rating,
-                        stock: product.product_stock || product.stock,
-                        brand: product.product_brand,
-                        is_available: product.is_available
-                    }}
+                    product={product}
+                    onClick={() => console.log('Product clicked:', product)}
                 />
             )}
         />

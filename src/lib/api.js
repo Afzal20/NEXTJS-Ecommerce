@@ -118,21 +118,6 @@ export const getCategory = async (categoryId) => {
 }
 
 export const postGetInTouch = async (name, email, message) => {
-    /**DRF API Docs
-        {
-        "email": "user@example.com",
-        "subject": "string",
-        "details": "string",
-        "status": "Pending"
-        }
-
-        URL: /shop/contact/
-
-        Response body: 
-        {
-        "message": "Message sent successfully!"
-        }
-     */
     try {
         const response = await apiClient.post('/shop/contact/', {
             email: email,
@@ -241,9 +226,7 @@ export const makeAuthenticatedRequest = async (requestFunc, getValidAccessToken)
     }
 }
 
-// Categories API
 export const getCategoriesApi = {
-    // Get all categories
     getAll: async () => {
         try {
             const response = await apiClient.get('/shop/categories/');

@@ -18,9 +18,11 @@ export const useToast = () => {
 
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
+  const [idCounter, setIdCounter] = useState(0);
 
   const addToast = (message, type = 'info') => {
-    const id = Date.now();
+    const id = idCounter;
+    setIdCounter(prev => prev + 1);
     const toast = { id, message, type };
     setToasts(prev => [...prev, toast]);
     
