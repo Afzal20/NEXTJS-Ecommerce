@@ -353,3 +353,16 @@ export const getDistricts = async () => {
         throw error;
     }
 };
+
+
+
+export const getCart = async (accessToken) => {
+    try {
+        const response = await apiClient.get('/shop/cart/', { headers: { Authorization: `Bearer ${accessToken}` } });
+        console.log('Cart items fetched:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching cart:', error?.response?.data || error);
+        return [];
+    }
+};
